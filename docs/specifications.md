@@ -1,0 +1,33 @@
+# BARdle Specifications
+
+- A user can input 5-letter words as **guess words**
+  - Using their keyboard hardware or
+  - Using the on-screen keyboard
+- A user can submit a guess word
+  - A submission must be made manually, either by
+    - Pressing enter on keyboard hardware
+    - Pressing enter on the on-screen keyboard
+- A user has up to 6 tries to guess a word
+  - A user has succcessfully guessed the target word when they have all 5 letters in correct order
+- A user receives hints through marked letters for every guess they make
+  - Correct letters are marked green
+    - A letter is correct if, when in the guessed word at the `i`th position, it is equal to the `i`th letter in the target word.
+  - Partially correct letters are marked yellow
+    - A letter is partially correct if it is not a correct letter, but it is within the target word.
+  - Incorrect letters are unmarked (or marked gray).
+    - A letter is incorrect if it is neither correct nor partially correct.
+- A user can view statistics for their gameplay
+  - A bar graph that shows number of times they have won a game with `n` guesses (up to 6, after which it is an `X` guess, or a lose).
+  - Number of total plays
+  - Number of total wins
+  - Rate of total wins as a percentage
+  - Current streak
+  - Max streak
+- A user can view instructions on how to play
+- A user can view information about the game in general
+- A user can switch between two modes of difficulty
+  - Easy mode (default): shows hints
+  - Hard mode: shows no hints
+- A user can toggle between light theme and dark theme
+  - Dark mode should be enabled by default if their OS settings has dark theme enabled
+- A user can toggle high contrast mode

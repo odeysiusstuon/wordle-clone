@@ -1,10 +1,25 @@
 # BARdle
 
-Powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+Powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte). Uses MongoDB as the database.
 
 ## Developing
 
-Install dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Install dependencies with `npm install` (or `pnpm install` or `yarn`). Then, you must create a `.env` file to store the URI of the database:
+
+```bash
+touch .env
+vim .env # or use any other editor
+```
+
+The `.env` file has the following structure:
+
+```
+MONGODB_URI=<your URI here>
+```
+
+Note, the URI should also point to a specific database (e.g., mongodb+srv://<username>:<password>@<your project>.jdlnt.mongodb.net/<your database name>).
+
+To start a development server:
 
 ```bash
 npm run dev

@@ -10,5 +10,6 @@ export async function get() {
 
   return {
     status: 404,
+    error: new Error('Could not load the latest word'),
   };
 }

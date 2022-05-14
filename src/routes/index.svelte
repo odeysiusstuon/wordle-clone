@@ -23,9 +23,13 @@
 
 <script lang="ts">
 	import Header from '$lib/header.svelte';
+	import Keyboard from '$lib/keyboard.svelte';
 	import Tileset from '$lib/tileset.svelte';
 	import { type Guess, type GuessFeedback, type Word, letterLength } from '$lib/types';
 	import '../styles/global.css';
+	import { Keyboard as KeyboardEnums } from '@etsoo/shared';
+	import { keyToCharacter } from '$lib/utils';
+	import Toaster from '$lib/toaster.svelte';
 
 	const validateUrl = '/word/validate.json';
 
@@ -55,51 +59,167 @@
 			(latestGuess.guessed && !latestGuess.feedback.correct)) &&
 		!animating;
 
-	async function onGuess() {
-		if (canGuess && currentGuessWord.length === letterLength) {
-			const res = await fetch(`${validateUrl}?guess=${currentGuessWord}`);
-			const { feedback }: { feedback: GuessFeedback } = await res.json();
-			currentNumAttempts++;
-			const guess = {
-				guessed: true,
-				attemptNum: currentNumAttempts,
-				word: currentGuessWord,
-				feedback
-			};
-			currentGuessWord = '';
-			guesses[currentNumAttempts - 1] = guess;
-			latestGuess = guess;
+	let toasts: string[] = [];
 
-			animating = true;
-			setTimeout(() => (animating = false), animationDuration * letterLength);
+	function addToast(message: string) {
+		toasts = [...toasts, message];
+		setTimeout(() => {
+			toasts = toasts.slice(0, -1);
+		}, 1 * 1000);
+	}
+
+	async function makeGuess() {
+		if (!canGuess) return;
+
+		if (currentGuessWord.length !== letterLength) {
+			addToast('Not enough letters');
+			return;
 		}
+
+		const res = await fetch(`${validateUrl}?guess=${currentGuessWord}`);
+		const { feedback }: { feedback: GuessFeedback } = await res.json();
+		currentNumAttempts++;
+		const guess = {
+			guessed: true,
+			attemptNum: currentNumAttempts,
+			word: currentGuessWord,
+			feedback
+		};
+		currentGuessWord = '';
+		guesses[currentNumAttempts - 1] = guess;
+		latestGuess = guess;
+
+		animating = true;
+		setTimeout(() => (animating = false), animationDuration * letterLength);
+	}
+
+	const keyboardMap = 'qwertyuiop\nasdfghjkl\n↵zxcvbnm←';
+
+	async function handleKeyPress(code: KeyboardEnums.Keys, character: string = undefined) {
+		if (!canGuess) return;
+		if (!(keyboardMap.indexOf(character) !== -1)) return;
+
+		switch (code) {
+			case KeyboardEnums.Keys.Enter:
+				await makeGuess();
+				break;
+			case KeyboardEnums.Keys.Backspace:
+				if (currentGuessWord.length > 0) {
+					currentGuessWord = currentGuessWord.slice(0, -1);
+				}
+				break;
+			default:
+				if (currentGuessWord.length < letterLength && character) {
+					currentGuessWord += keyToCharacter(code);
+				}
+				break;
+		}
+	}
+
+	async function onKeyboardPress(event: CustomEvent) {
+		await handleKeyPress(event.detail.code, event.detail.key);
+	}
+
+	async function onKeyPress(event: KeyboardEvent) {
+		let key = event.key;
+		if (key === KeyboardEnums.Keys.Enter) {
+			key = '↵';
+		} else if (key === KeyboardEnums.Keys.Backspace) {
+			key = '←';
+		}
+
+		await handleKeyPress(event.code as KeyboardEnums.Keys, key);
 	}
 </script>
 
+<svelte:window on:keydown={onKeyPress} />
 <div class="main">
-	<Header title="BARdle" />
-	<br />
-	The word is <strong>{word.word}</strong>
-	<br />
-	{#if currentNumAttempts > 0 && latestGuess}
-		That guess is {latestGuess.guessed && latestGuess.feedback.correct
-			? 'correct!'
-			: 'not correct!'}
+	<div class="header">
+		<Header title="BARdle" />
+	</div>
+	<div class="container">
+		The word is <strong>{word.word}</strong>
+
 		<br />
-	{/if}
-	<Tileset {guesses} numRows={maxGuesses} {animationDuration} />
-	{#if currentNumAttempts === 0}
-		Guess a word!
-	{/if}
-	{#if currentNumAttempts >= maxGuesses}
-		You have no more attempts left!
-		<br />
-	{/if}
-	<input
-		type="text"
-		maxlength={letterLength}
-		on:change={onGuess}
-		disabled={!canGuess}
-		bind:value={currentGuessWord}
-	/>
+
+		<!-- {#if currentNumAttempts > 0 && latestGuess}
+			That guess is {latestGuess.guessed && latestGuess.feedback.correct
+				? 'correct!'
+				: 'not correct!'}
+			<br />
+		{/if} -->
+
+		<div class="toaster">
+			<Toaster {toasts} />
+		</div>
+
+		<div class="tileset">
+			<Tileset
+				{guesses}
+				numRows={maxGuesses}
+				{currentGuessWord}
+				{currentNumAttempts}
+				{animationDuration}
+			/>
+		</div>
+
+		<!-- {#if currentNumAttempts === 0}
+			Guess a word!
+		{/if} -->
+
+		<!-- {#if currentNumAttempts >= maxGuesses}
+			You have no more attempts left!
+			<br />
+		{/if} -->
+	</div>
+	<div class="keyboard">
+		<Keyboard on:keypress={onKeyboardPress} {guesses} disabled={!canGuess} {keyboardMap} />
+	</div>
 </div>
+
+<style>
+	.main {
+		display: grid;
+		grid-template-rows: 20px 1fr 200px;
+		grid-template-columns: 1fr;
+		grid-template-areas:
+			'header'
+			'container'
+			'keyboard';
+		height: 100vh;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.header {
+		grid-area: header;
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+		justify-content: center;
+		text-align: center;
+	}
+
+	.container {
+		grid-area: container;
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+		justify-content: center;
+		text-align: center;
+	}
+
+	.keyboard {
+		grid-area: keyboard;
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+		justify-content: end;
+	}
+
+	.toaster,
+	.tileset,
+	.keyboard {
+		padding-bottom: 50px;
+	}
+</style>

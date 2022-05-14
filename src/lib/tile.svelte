@@ -1,12 +1,5 @@
 <script lang="ts">
-	import { LetterFeedback } from './types';
-
-	const tileColors: { [key in LetterFeedback]: string } = {
-		[LetterFeedback.None]: 'transparent',
-		[LetterFeedback.Correct]: '#538d4e',
-		[LetterFeedback.Present]: '#b59f3b',
-		[LetterFeedback.Incorrect]: '#3a3a3c'
-	};
+	import { LetterFeedback, tileColors } from './types';
 
 	const tileOutlines: { [key in LetterFeedback]: string } = {
 		[LetterFeedback.None]: '#3a3a3c solid 2px',

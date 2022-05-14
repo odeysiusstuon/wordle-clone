@@ -13,6 +13,8 @@
 	export let animationDuration: number;
 
 	export let guesses: Guess[];
+	export let currentNumAttempts: number;
+	export let currentGuessWord: string;
 
 	let rootElement: HTMLDivElement;
 	$: {
@@ -28,20 +30,24 @@
 </script>
 
 <div class="tileset" bind:this={rootElement}>
-	{#each guesses as guess}
+	{#each guesses as guess, i}
 		{#if guess.guessed}
-			{#each toArray(guess.word) as letter, i (i)}
+			{#each toArray(guess.word) as letter, j (j)}
 				<Tile
 					{letter}
 					guessed={guess.guessed}
-					animationDelay={i * animationDuration}
+					animationDelay={j * animationDuration}
 					{animationDuration}
-					letterFeedback={guess.feedback.hint.letters[i]}
+					letterFeedback={guess.feedback.hint.letters[j]}
 				/>
 			{/each}
 		{:else}
-			{#each Array(numColumns) as _, i (i)}
-				<Tile letter="" letterFeedback={LetterFeedback.None} />
+			{#each Array(numColumns) as _, j (j)}
+				{#if i === currentNumAttempts}
+					<Tile letter={currentGuessWord[j] || ''} letterFeedback={LetterFeedback.None} />
+				{:else}
+					<Tile letter="" letterFeedback={LetterFeedback.None} />
+				{/if}
 			{/each}
 		{/if}
 	{/each}

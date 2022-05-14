@@ -10,7 +10,7 @@
 	export let tileWidth: string = '60px';
 	export let tileHeight: string = '60px';
 
-	export let animationDuration: number;
+	export let animationDuration: number = 0;
 
 	export let guesses: Guess[];
 	export let currentNumAttempts: number;
@@ -59,6 +59,6 @@
 		grid-template-rows: repeat(var(--num-rows), var(--tile-height));
 		grid-template-columns: repeat(var(--num-columns), var(--tile-width));
 		grid-auto-flow: row;
-		gap: 10px 10px;
+		gap: 0.5rem 0.5rem;
 	}
 </style>

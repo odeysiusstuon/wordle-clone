@@ -1,12 +1,5 @@
 <script lang="ts">
-	import { LetterFeedback, tileColors } from './types';
-
-	const tileOutlines: { [key in LetterFeedback]: string } = {
-		[LetterFeedback.None]: '#3a3a3c solid 2px',
-		[LetterFeedback.Correct]: 'none',
-		[LetterFeedback.Present]: 'none',
-		[LetterFeedback.Incorrect]: 'none'
-	};
+	import { LetterFeedback, tileColors, tileOutlines } from './types';
 
 	type TransitionProps = {
 		delay?: number;

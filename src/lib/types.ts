@@ -40,6 +40,13 @@ export const tileColors: { [key in LetterFeedback]: string } = {
 	[LetterFeedback.Incorrect]: '#3a3a3c'
 };
 
+export const tileOutlines: { [key in LetterFeedback]: string } = {
+	[LetterFeedback.None]: '#3a3a3c solid 2px',
+	[LetterFeedback.Correct]: '#538d4e solid 2px',
+	[LetterFeedback.Present]: '#b59f3b solid 2px',
+	[LetterFeedback.Incorrect]: '#3a3a3c solid 2px'
+};
+
 export const keyColors: { [key in LetterFeedback]: string } = {
 	[LetterFeedback.None]: '#818384',
 	[LetterFeedback.Correct]: '#538d4e',

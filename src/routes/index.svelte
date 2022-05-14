@@ -22,14 +22,21 @@
 </script>
 
 <script lang="ts">
-	import Header from '$lib/header.svelte';
+	import { Keyboard as KeyboardEnums } from '@etsoo/shared';
+	import Modal, { bind } from 'svelte-simple-modal';
+	import { writable } from 'svelte/store';
+
+	import '../styles/global.css';
+
 	import Keyboard from '$lib/keyboard.svelte';
 	import Tileset from '$lib/tileset.svelte';
 	import { type Guess, type GuessFeedback, type Word, letterLength } from '$lib/types';
-	import '../styles/global.css';
-	import { Keyboard as KeyboardEnums } from '@etsoo/shared';
 	import { keyToCharacter } from '$lib/utils';
 	import Toaster from '$lib/toaster.svelte';
+	import HelpPopup from '$lib/help_popup.svelte';
+
+	const helpModal = writable(null);
+	const showHelpModal = () => helpModal.set(bind(HelpPopup, {}));
 
 	const validateUrl = '/word/validate.json';
 
@@ -95,15 +102,16 @@
 
 	const keyboardMap = 'qwertyuiop\nasdfghjkl\n↵zxcvbnm←';
 
-	async function handleKeyPress(code: KeyboardEnums.Keys, character: string = undefined) {
+	async function handleKeyPress(code: KeyboardEnums.Codes, character: string = undefined) {
 		if (!canGuess) return;
 		if (!(keyboardMap.indexOf(character) !== -1)) return;
 
 		switch (code) {
-			case KeyboardEnums.Keys.Enter:
+			case KeyboardEnums.Codes.Enter:
+			case 'NumpadEnter' as KeyboardEnums.Codes:
 				await makeGuess();
 				break;
-			case KeyboardEnums.Keys.Backspace:
+			case KeyboardEnums.Codes.Backspace:
 				if (currentGuessWord.length > 0) {
 					currentGuessWord = currentGuessWord.slice(0, -1);
 				}
@@ -121,6 +129,7 @@
 	}
 
 	async function onKeyPress(event: KeyboardEvent) {
+		console.log(event);
 		let key = event.key;
 		if (key === KeyboardEnums.Keys.Enter) {
 			key = '↵';
@@ -128,14 +137,43 @@
 			key = '←';
 		}
 
-		await handleKeyPress(event.code as KeyboardEnums.Keys, key);
+		await handleKeyPress(event.code as KeyboardEnums.Codes, key);
 	}
 </script>
 
+<svelte:head>
+	<link
+		rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+	/>
+</svelte:head>
 <svelte:window on:keydown={onKeyPress} />
 <div class="main">
 	<div class="header">
-		<Header title="BARdle" />
+		<div class="header-buttons-left">
+			<a class="home" href="https://thebar.world/">
+				<span class="material-symbols-outlined"> home </span>
+			</a>
+			<Modal
+				show={$helpModal}
+				styleWindow={{ backgroundColor: '#222', color: '#fff', textAlign: 'left' }}
+			>
+				<button class="help" on:click={showHelpModal}>
+					<span class="material-symbols-outlined"> help </span>
+				</button>
+			</Modal>
+		</div>
+		<div class="heading">
+			<h1>BARdle</h1>
+		</div>
+		<div class="header-buttons-right">
+			<button class="statistics">
+				<span class="material-symbols-outlined"> leaderboard </span>
+			</button>
+			<button class="settings">
+				<span class="material-symbols-outlined"> settings </span>
+			</button>
+		</div>
 	</div>
 	<div class="container">
 		The word is <strong>{word.word}</strong>
@@ -195,9 +233,10 @@
 		grid-area: header;
 		display: flex;
 		align-items: center;
-		flex-direction: column;
-		justify-content: center;
+		flex-direction: row;
+		justify-content: space-between;
 		text-align: center;
+		border-bottom: 1px solid #4d4dff;
 	}
 
 	.container {
@@ -221,5 +260,42 @@
 	.tileset,
 	.keyboard {
 		padding-bottom: 50px;
+	}
+
+	.header-buttons-left,
+	.header-buttons-right,
+	.heading {
+		margin: 10px;
+		margin-top: 20px;
+	}
+
+	.header-buttons-left,
+	.header-buttons-right {
+		display: flex;
+		align-items: center;
+		flex-direction: row;
+		justify-content: center;
+	}
+
+	.statistics,
+	.settings,
+	.home,
+	.help {
+		background-color: transparent;
+		color: #fff;
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+		justify-content: center;
+		text-align: center;
+		cursor: pointer;
+		width: 30px;
+		border-radius: 1em;
+		text-decoration: none;
+	}
+
+	h1 {
+		font-size: 42px;
+		margin: 0px;
 	}
 </style>

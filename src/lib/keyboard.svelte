@@ -5,7 +5,7 @@
 
 	import Key from './key.svelte';
 	import { characterToKey } from './utils';
-	import { LetterFeedback, letterLength, type Guess } from './types';
+	import { LetterFeedback, type Guess } from './types';
 
 	export let guesses: Guess[];
 	export let keyboardMap: string;

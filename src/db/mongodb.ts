@@ -12,7 +12,7 @@ export class MongoDB implements IDatabase {
 		this.client = client;
 	}
 
-	async updateCache() {
+	private async fetchCache() {
 		const connection = await this.client;
 		const db = connection.db();
 		const collection = db.collection('words');
@@ -26,22 +26,26 @@ export class MongoDB implements IDatabase {
 		this.wordCache = words as WordDocument[];
 	}
 
-	async getLatestWord() {
+	private async updateCache() {
 		if (this.wordCache.length > 0) {
 			if (this.wordCache.length === 1) {
-				await this.updateCache();
+				await this.fetchCache();
 			} else {
 				const nextWord = this.wordCache[1];
 				const now = moment.utc();
 				const nextWordDate = moment(nextWord.date).utc();
 				if (now >= nextWordDate) {
-					await this.updateCache();
+					await this.fetchCache();
 				}
 			}
 		} else {
-			await this.updateCache();
+			await this.fetchCache();
 		}
-		
+	}
+
+	async getLatestWord() {
+		await this.updateCache();
+
 		if (this.wordCache.length > 0) {
 			const word = this.wordCache[0];
 			return {

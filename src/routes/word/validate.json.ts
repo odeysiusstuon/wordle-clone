@@ -24,9 +24,11 @@ function isWrongSpot(
 }
 
 function countCorrect(word: string, guess: string): LetterCount {
-	return countBy(Array.from(word).filter((letter, i) => {
-		return isCorrect(letter, guess[i]);
-	}));
+	return countBy(
+		Array.from(word).filter((letter, i) => {
+			return isCorrect(letter, guess[i]);
+		})
+	);
 }
 
 function createHint(word: string, guess: string): Hint {
@@ -38,7 +40,7 @@ function createHint(word: string, guess: string): Hint {
 		if (isCorrect(letter, guessLetter)) {
 			return LetterFeedback.Correct;
 		} else if (isWrongSpot(letter, guessLetter, wordLetterCount, correctCount)) {
-			return LetterFeedback.WrongSpot;
+			return LetterFeedback.Present;
 		} else {
 			return LetterFeedback.Incorrect;
 		}
@@ -59,18 +61,18 @@ export async function get({ request }) {
 		const hint = createHint(wordString, guess);
 		const feedback: GuessFeedback = {
 			correct,
-			hint,
+			hint
 		};
 
 		return {
 			body: {
-				feedback,
+				feedback
 			}
 		};
 	}
 
 	return {
 		status: 404,
-		error: new Error('Could not load the latest word'),
+		error: new Error('Could not load the latest word')
 	};
 }

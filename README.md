@@ -1,5 +1,7 @@
 # BARdle
 
+<img align="left" src="https://github.com/therealvidem/bardle/blob/develop/static/favicon.png" width="120px">
+
 Powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte). Uses MongoDB as the database.
 
 ## Developing

@@ -1,13 +1,5 @@
 <script lang="ts">
-	import { LetterFeedback, getFeedbackClass } from './types';
-
-	type TransitionProps = {
-		delay?: number;
-		duration?: number;
-		easing?: (t: number) => number;
-		css?: (t: number, u: number) => string;
-		tick?: (t: number, u: number) => void;
-	};
+	import { LetterFeedback, getFeedbackClass, type TransitionProps } from './types';
 
 	export let feedback: LetterFeedback = LetterFeedback.None;
 	export let letter: string = '';

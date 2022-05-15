@@ -3,8 +3,6 @@
 
 	export let dataCode: string;
 	export let dataKey: string;
-	export let fontSize: string = '14px';
-	export let flex: string = '1';
 	export let feedback: LetterFeedback;
 </script>
 
@@ -13,7 +11,6 @@
 	data-code={dataCode}
 	data-key={dataKey}
 	on:click
-	style={`--font-size: ${fontSize}; --flex: ${flex};`}
 >
 	<slot />
 </button>

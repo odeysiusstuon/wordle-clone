@@ -34,6 +34,7 @@
 			return {
 				display: character,
 				backspace: false,
+				flex: '1',
 				'data-code': characterToKey(character),
 				'data-key': character
 			};
@@ -85,19 +86,19 @@
 					<Key
 						dataCode={character['data-code']}
 						dataKey={character['data-key']}
-						flex={character.flex}
 						feedback={LetterFeedback.None}
-						fontSize="12px"
-						on:click={onKeyPress}><span class="material-symbols-outlined"> backspace </span></Key
+						on:click={onKeyPress}
+						--font-size="12px"
+						--flex={character.flex}><span class="material-symbols-outlined"> backspace </span></Key
 					>
 				{:else}
 					<Key
 						dataCode={character['data-code']}
 						dataKey={character['data-key']}
-						flex={character.flex}
 						feedback={getKeyFeedback(guesses, character.display)}
-						fontSize={character.display.length > 1 ? '12px' : undefined}
-						on:click={onKeyPress}>{character.display}</Key
+						on:click={onKeyPress}
+						--font-size={character.display.length > 1 ? '12px' : undefined}
+						--flex={character.flex}>{character.display}</Key
 					>
 				{/if}
 			{/each}

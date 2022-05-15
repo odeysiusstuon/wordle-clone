@@ -38,6 +38,7 @@
 	import Toaster from '$lib/toaster.svelte';
 	import HelpPopup from '$lib/help_popup.svelte';
 	import SettingsPopup from '$lib/settings_popup.svelte';
+	import { has } from 'lodash';
 
 	const helpModal = writable(null);
 	const showHelpModal = () => helpModal.set(bind(HelpPopup, {}));
@@ -66,12 +67,13 @@
 
 	let animating: boolean = false;
 
+	let hasWon: boolean = false;
+	$: hasWon = latestGuess && latestGuess.guessed && latestGuess.feedback.correct;
+
 	let canGuess: boolean = true;
 	$: canGuess =
 		currentNumAttempts < maxGuesses &&
-		(!latestGuess ||
-			!latestGuess.guessed ||
-			(latestGuess.guessed && !latestGuess.feedback.correct)) &&
+		(!latestGuess || !latestGuess.guessed || !hasWon) &&
 		!animating;
 
 	let playWinAnimation: boolean = false;
@@ -102,11 +104,19 @@
 		}
 	}
 
+	let tileset: Tileset;
+	function onInsufficientInput() {
+		if (!animating) {
+			addToast('Not enough letters');
+			tileset.shakeLatestRow();
+		}
+	}
+
 	async function makeGuess() {
 		if (!canGuess) return;
 
 		if (currentGuessWord.length !== letterLength) {
-			addToast('Not enough letters');
+			onInsufficientInput();
 			return;
 		}
 
@@ -216,12 +226,15 @@
 
 		<div class="tileset">
 			<Tileset
+				bind:this={tileset}
 				{guesses}
-				numRows={maxGuesses}
 				{currentGuessWord}
 				{currentNumAttempts}
 				{animationDuration}
 				{animating}
+				--num-rows={maxGuesses}
+				--num-columns={letterLength}
+				--tile-height="60px"
 			/>
 		</div>
 	</div>
@@ -278,6 +291,7 @@
 		flex-direction: column;
 		justify-content: center;
 		text-align: center;
+		user-select: none;
 	}
 
 	.keyboard {
@@ -292,6 +306,10 @@
 	.tileset,
 	.keyboard {
 		padding-bottom: 50px;
+	}
+
+	.toaster {
+		z-index: 1;
 	}
 
 	.header-buttons-left,

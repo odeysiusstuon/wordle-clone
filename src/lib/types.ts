@@ -41,6 +41,14 @@ export function getFeedbackClass(feedback: LetterFeedback) {
 	}
 }
 
+export type TransitionProps = {
+	delay?: number;
+	duration?: number;
+	easing?: (t: number) => number;
+	css?: (t: number, u: number) => string;
+	tick?: (t: number, u: number) => void;
+};
+
 export interface IDatabase {
 	getLatestWord: () => Promise<Word>;
 	getWordHistory: () => Promise<[Word]>;

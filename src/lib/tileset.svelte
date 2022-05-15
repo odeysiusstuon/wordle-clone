@@ -1,14 +1,12 @@
 <script lang="ts">
-	import { toArray } from 'lodash';
-
-	import Tile from './tile.svelte';
-	import { type Guess, LetterFeedback, letterLength } from './types';
+	import { type Guess, letterLength, type TransitionProps } from './types';
+	import TilesetRow from '$lib/tileset_row.svelte';
+	import { debounce } from 'lodash';
 
 	export let numRows = 6;
 	export let numColumns = letterLength;
 
 	export let tileWidth: string = '60px';
-	export let tileHeight: string = '60px';
 
 	export let animationDuration: number = 0;
 
@@ -17,38 +15,49 @@
 	export let currentGuessWord: string;
 	export let animating: boolean = false;
 
-	let rootElement: HTMLDivElement;
-	$: {
-		if (rootElement) {
-			rootElement.style.setProperty('--num-rows', numRows.toString());
-			rootElement.style.setProperty('--num-columns', numColumns.toString());
-			rootElement.style.setProperty('--tile-width', tileWidth.toString());
-			rootElement.style.setProperty('--tile-height', tileHeight.toString());
-		}
-	}
+	const shakeDuration = 500;
+
+	// I really don't like this solution for manually
+	// triggering the render :/
+	// https://stackoverflow.com/questions/59062025/is-there-a-way-to-perform-svelte-transition-without-a-if-block
+	let shakeKey = {};
+	export const shakeLatestRow = debounce(() => (shakeKey = {}), shakeDuration, {
+		leading: true,
+		trailing: false,
+		maxWait: shakeDuration
+	});
 </script>
 
-<div class="tileset" bind:this={rootElement}>
-	{#each guesses as guess, i}
-		{#if guess.guessed}
-			{#each toArray(guess.word) as letter, j (j)}
-				<Tile
-					{letter}
-					guessed={guess.guessed}
-					animationDelay={j * animationDuration}
+<div class="tileset">
+	{#each guesses as guess, rowIndex}
+		{#if rowIndex === currentNumAttempts}
+			{#key shakeKey}
+				<TilesetRow
+					{guess}
+					{rowIndex}
+					{numColumns}
 					{animationDuration}
-					feedback={guess.feedback.hint.letters[j]}
-					isWinTile={guess.feedback.correct && !animating}
+					{currentNumAttempts}
+					{currentGuessWord}
+					{animating}
+					{shakeDuration}
+					--num-columns={numColumns}
+					--tile-width={tileWidth}
+					shouldShake
 				/>
-			{/each}
+			{/key}
 		{:else}
-			{#each Array(numColumns) as _, j (j)}
-				{#if i === currentNumAttempts}
-					<Tile letter={currentGuessWord[j] || ''} feedback={LetterFeedback.None} />
-				{:else}
-					<Tile letter="" feedback={LetterFeedback.None} />
-				{/if}
-			{/each}
+			<TilesetRow
+				{guess}
+				{rowIndex}
+				{numColumns}
+				{animationDuration}
+				{currentNumAttempts}
+				{currentGuessWord}
+				{animating}
+				--num-columns={numColumns}
+				--tile-width={tileWidth}
+			/>
 		{/if}
 	{/each}
 </div>
@@ -57,7 +66,6 @@
 	.tileset {
 		display: grid;
 		grid-template-rows: repeat(var(--num-rows), var(--tile-height));
-		grid-template-columns: repeat(var(--num-columns), var(--tile-width));
 		grid-auto-flow: row;
 		gap: 0.5rem 0.5rem;
 	}

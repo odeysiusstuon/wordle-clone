@@ -1,23 +1,72 @@
-import { autoUpdateWritableStorage, getWritableIntFromStorage } from '$lib/utils';
-import type { Writable } from 'svelte/store';
+import type { Guess, PlayerStatistics, PlayerWord } from '$lib/types';
+import { get } from 'svelte/store';
+import { settingsStore } from './settings_store';
 
-class SettingsStore {
-	public totalPlays: Writable<number>;
-	public totalWins: Writable<number>;
-	public currentStreak: Writable<number>;
-	public maxStreak: Writable<number>;
+class StatisticsStore {
+	private playerStatistics: PlayerStatistics;
 
 	constructor() {
-		this.totalPlays = getWritableIntFromStorage(localStorage, 'totalPlays');
-		this.totalWins = getWritableIntFromStorage(localStorage, 'totalWins');
-		this.currentStreak = getWritableIntFromStorage(localStorage, 'currentStreak');
-		this.maxStreak = getWritableIntFromStorage(localStorage, 'maxStreak');
+		if (get(settingsStore.saveProgress)) {
+			this.loadPlayerStatistics();
+		} else {
+			this.playerStatistics = {
+				totalPlays: 0,
+				totalWins: 0,
+				currentStreak: 0,
+				maxStreak: 0,
+				days: {}
+			};
+		}
+	}
 
-		autoUpdateWritableStorage(localStorage, 'totalPlays', this.totalPlays);
-		autoUpdateWritableStorage(localStorage, 'totalWins', this.totalWins);
-		autoUpdateWritableStorage(localStorage, 'currentStreak', this.currentStreak);
-		autoUpdateWritableStorage(localStorage, 'maxStreak', this.maxStreak);
+	savePlayerStatistics() {
+		localStorage.setItem('playerStatistics', JSON.stringify(this.playerStatistics));
+	}
+
+	loadPlayerStatistics() {
+		this.playerStatistics = (JSON.parse(localStorage.getItem('playerStatistics')) || {
+			totalPlays: 0,
+			totalWins: 0,
+			currentStreak: 0,
+			maxStreak: 0,
+			days: {}
+		}) as PlayerStatistics;
+	}
+
+	setGuess(currentWord: PlayerWord, attemptNum: number, guess: Guess) {
+		const day = this.playerStatistics.days[currentWord.wordId];
+		day.guessList[attemptNum] = guess;
+	}
+
+	getGuesses(currentWord: PlayerWord) {
+		if (!(currentWord.wordId in this.playerStatistics.days)) return null;
+		const day = this.playerStatistics.days[currentWord.wordId];
+		return day.guessList;
+	}
+
+	hasDay(word: PlayerWord) {
+		return word.wordId in this.playerStatistics.days;
+	}
+
+	addDay(word: PlayerWord) {
+		this.playerStatistics.days[word.wordId] = {
+			word,
+			guessList: []
+		};
+	}
+
+	addDayIfNotPresent(word: PlayerWord) {
+		if (this.hasDay(word)) return;
+		this.addDay(word);
+	}
+
+	public get getStatistics(): PlayerStatistics {
+		return this.playerStatistics;
+	}
+
+	print() {
+		console.log(this.playerStatistics);
 	}
 }
 
-export const settingsStore = new SettingsStore();
+export const statisticsStore = new StatisticsStore();

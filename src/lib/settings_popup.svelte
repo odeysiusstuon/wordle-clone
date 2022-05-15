@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settingsStore } from '$lib/stores/settings_store';
-	const { winConfetti, winSound, barColorTiles } = settingsStore;
+	const { barColorTiles, saveProgress, winConfetti, winSound } = settingsStore;
 </script>
 
 <h1>Settings</h1>
@@ -39,6 +39,18 @@
 		<span class="material-symbols-outlined knob" class:selected={$barColorTiles}>circle</span>
 	</div>
 	<label for="bar-color-tiles-input">Use BAR colors</label>
+</div>
+
+<div class="input-div">
+	<div
+		id="save-progress-input"
+		class="radio-input"
+		on:click|preventDefault={() => saveProgress.update((v) => !v)}
+		class:selected={$saveProgress}
+	>
+		<span class="material-symbols-outlined knob" class:selected={$saveProgress}>circle</span>
+	</div>
+	<label for="save-progress-input">Save progress</label>
 </div>
 
 <style>

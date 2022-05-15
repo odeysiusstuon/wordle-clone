@@ -1,12 +1,12 @@
-import type { IDatabase, Word } from '$lib/types';
+import type { IDatabase, PlayerWord, Word } from '$lib/types';
 import moment from 'moment';
 import type { MongoClient, WithId } from 'mongodb';
 
-type WordDocument = WithId<Document> & Word;
+type WordDocument = WithId<Document> & Omit<Word, 'wordId'>;
 
 export class MongoDB implements IDatabase {
 	client: Promise<MongoClient>;
-	wordCache: Word[] = [];
+	wordCache: WordDocument[] = [];
 
 	constructor(client: Promise<MongoClient>) {
 		this.client = client;
@@ -43,15 +43,28 @@ export class MongoDB implements IDatabase {
 		}
 	}
 
-	async getLatestWord() {
+	async getLatestWord(): Promise<Word> {
 		await this.updateCache();
 
 		if (this.wordCache.length > 0) {
 			const word = this.wordCache[0];
 			return {
+				wordId: word._id.toHexString(),
 				word: word.word,
 				date: word.date,
 				desc: word.desc
+			};
+		} else {
+			return null;
+		}
+	}
+
+	async getLatestPlayerWord(): Promise<PlayerWord> {
+		const word = await this.getLatestWord();
+		if (word) {
+			return {
+				wordId: word.wordId,
+				date: word.date
 			};
 		} else {
 			return null;
@@ -69,6 +82,13 @@ export class MongoDB implements IDatabase {
 				}
 			})
 			.toArray()) as [WordDocument];
-		return words;
+		return words.map((w) => {
+			return {
+				wordId: w._id.toHexString(),
+				word: w.word,
+				date: w.date,
+				desc: w.desc
+			} as Word;
+		});
 	}
 }

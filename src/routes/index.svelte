@@ -6,10 +6,35 @@
 		if (res.ok) {
 			const { word } = await res.json();
 
+			statisticsStore.addDayIfNotPresent(word);
+			let guesses = statisticsStore.getGuesses(word);
+			let currentNumAttempts = 0;
+
+			if (guesses === null || guesses.length === 0) {
+				guesses = new Array(maxGuesses).fill({
+					guessed: false
+				});
+				guesses.forEach((g, i) => statisticsStore.setGuess(word, i, g));
+			} else {
+				if (guesses !== null) {
+					let latestGuess: Guess;
+					for (const guess of guesses) {
+						if (guess.guessed) {
+							latestGuess = guess;
+						}
+					}
+					if (latestGuess && latestGuess.guessed) {
+						currentNumAttempts = latestGuess.attemptNum;
+					}
+				}
+			}
+
 			return {
 				status: res.status,
 				props: {
-					word
+					word,
+					guesses,
+					currentNumAttempts
 				}
 			};
 		} else {
@@ -29,11 +54,19 @@
 	import '../styles/global.css';
 
 	import { settingsStore } from '$lib/stores/settings_store';
-	const { winConfetti, winSound } = settingsStore;
+	const { saveProgress, winConfetti, winSound } = settingsStore;
+
+	import { statisticsStore } from '$lib/stores/statistics_store';
 
 	import Keyboard from '$lib/keyboard.svelte';
 	import Tileset from '$lib/tileset.svelte';
-	import { type Guess, type GuessFeedback, type Word, letterLength } from '$lib/types';
+	import {
+		type Guess,
+		type GuessFeedback,
+		letterLength,
+		type PlayerWord,
+		maxGuesses
+	} from '$lib/types';
 	import { keyToCharacter } from '$lib/utils';
 	import Toaster from '$lib/toaster.svelte';
 	import HelpPopup from '$lib/help_popup.svelte';
@@ -48,21 +81,16 @@
 
 	const validateUrl = '/word/validate.json';
 
-	export let word: Word;
+	export let word: PlayerWord;
 
-	const maxGuesses = 6;
 	const animationDuration = 400;
 
-	let guesses: Guess[] = new Array(maxGuesses);
-	for (let i = 0; i < maxGuesses; i++) {
-		guesses[i] = {
-			guessed: false
-		};
-	}
+	export let guesses: Guess[];
+	export let currentNumAttempts: number = 0;
+	let latestGuess: Guess = guesses[currentNumAttempts - 1] || null;
 	let currentGuessWord: string = '';
-	let currentNumAttempts: number = 0;
 
-	let latestGuess: Guess;
+	$: latestGuess = guesses[currentNumAttempts - 1] || null;
 
 	let animating: boolean = false;
 
@@ -75,10 +103,6 @@
 		(!latestGuess || !latestGuess.guessed || !hasWon) &&
 		!animating;
 
-	let playWinAnimation: boolean = false;
-	$: playWinAnimation =
-		$winConfetti && latestGuess && latestGuess.guessed && latestGuess.feedback.correct;
-
 	let toasts: string[] = [];
 
 	function addToast(message: string) {
@@ -88,7 +112,10 @@
 		}, 1 * 1000);
 	}
 
+	let playWinAnimation: boolean = false;
 	async function onWin() {
+		playWinAnimation =
+			$winConfetti && latestGuess && latestGuess.guessed && latestGuess.feedback.correct;
 		addToast('Splendid');
 
 		if ($winSound) {
@@ -130,12 +157,17 @@
 		};
 		currentGuessWord = '';
 		guesses[currentNumAttempts - 1] = guess;
-		latestGuess = guess;
+
+		if ($saveProgress) {
+			statisticsStore.addDayIfNotPresent(word);
+			statisticsStore.setGuess(word, currentNumAttempts - 1, guess);
+			statisticsStore.savePlayerStatistics();
+		}
 
 		animating = true;
 		setTimeout(() => (animating = false), animationDuration * letterLength);
 
-		if (latestGuess.guessed && latestGuess.feedback.correct) {
+		if (guess.guessed && guess.feedback.correct) {
 			await onWin();
 		}
 	}
@@ -215,7 +247,7 @@
 		</div>
 	</div>
 	<div class="container">
-		The word is <strong>{word.word}</strong>
+		wordId: {word.wordId}, date: {word.date}
 
 		<br />
 

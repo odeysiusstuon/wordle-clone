@@ -7,8 +7,10 @@
 	export let animationDuration: number = 0;
 	export let guessed: boolean = false;
 	export let isWinTile: boolean = false;
+	let isAnimating = false;
 
 	function flip(node: HTMLElement, params: any): TransitionProps {
+		isAnimating = true;
 		return {
 			delay: animationDelay,
 			duration: animationDuration,
@@ -20,6 +22,9 @@
 				if (t > 0.5) {
 					node.classList.remove('guessed');
 					node.classList.add(getFeedbackClass(feedback));
+				}
+				if (t >= 1) {
+					isAnimating = false;
 				}
 			}
 		};
@@ -38,10 +43,11 @@
 
 {#if guessed}
 	{#key guessed}
-		<!-- For some reason, this needs to be in a template bracket AND
-			template string, otherwise the flip transition does not
-			change its class. -->
-		<div class={`tile guessed`} class:win={isWinTile} in:flip>
+		<div
+			class={`tile guessed ${isAnimating ? '' : getFeedbackClass(feedback)}`}
+			class:win={isWinTile}
+			in:flip
+		>
 			{letter}
 		</div>
 	{/key}

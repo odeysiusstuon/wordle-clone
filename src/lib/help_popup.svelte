@@ -83,7 +83,7 @@
 
 <p>The letters <strong>D</strong> and <strong>M</strong> are not in the word in any spot.</p>
 
-(Note: If you use a different tile color them from the default WORDLE one, this is a helpful guide
+(Note: If you use a different tile color theme from the default WORDLE one, this is a helpful guide
 for understanding what tile colors represent what).
 
 <hr />

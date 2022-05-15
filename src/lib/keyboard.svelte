@@ -88,7 +88,7 @@
 						flex={character.flex}
 						feedback={LetterFeedback.None}
 						fontSize="12px"
-						on:click={onKeyPress}><i class="gg-backspace" /></Key
+						on:click={onKeyPress}><span class="material-symbols-outlined"> backspace </span></Key
 					>
 				{:else}
 					<Key

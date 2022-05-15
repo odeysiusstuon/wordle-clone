@@ -15,6 +15,7 @@
 	export let guesses: Guess[];
 	export let currentNumAttempts: number;
 	export let currentGuessWord: string;
+	export let animating: boolean = false;
 
 	let rootElement: HTMLDivElement;
 	$: {
@@ -25,8 +26,6 @@
 			rootElement.style.setProperty('--tile-height', tileHeight.toString());
 		}
 	}
-
-	$: console.log(guesses);
 </script>
 
 <div class="tileset" bind:this={rootElement}>
@@ -38,15 +37,16 @@
 					guessed={guess.guessed}
 					animationDelay={j * animationDuration}
 					{animationDuration}
-					letterFeedback={guess.feedback.hint.letters[j]}
+					feedback={guess.feedback.hint.letters[j]}
+					isWinTile={guess.feedback.correct && !animating}
 				/>
 			{/each}
 		{:else}
 			{#each Array(numColumns) as _, j (j)}
 				{#if i === currentNumAttempts}
-					<Tile letter={currentGuessWord[j] || ''} letterFeedback={LetterFeedback.None} />
+					<Tile letter={currentGuessWord[j] || ''} feedback={LetterFeedback.None} />
 				{:else}
-					<Tile letter="" letterFeedback={LetterFeedback.None} />
+					<Tile letter="" feedback={LetterFeedback.None} />
 				{/if}
 			{/each}
 		{/if}

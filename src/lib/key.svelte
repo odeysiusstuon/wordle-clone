@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { keyColors, type LetterFeedback } from './types';
+	import { getFeedbackClass, type LetterFeedback } from './types';
 
 	export let dataCode: string;
 	export let dataKey: string;
@@ -9,20 +9,17 @@
 </script>
 
 <button
-	class="key"
+	class={`key ${getFeedbackClass(feedback)}`}
 	data-code={dataCode}
 	data-key={dataKey}
 	on:click
-	style={`--font-size: ${fontSize}; --flex: ${flex}; --color: ${keyColors[feedback]};`}
+	style={`--font-size: ${fontSize}; --flex: ${flex};`}
 >
 	<slot />
 </button>
 
 <style>
-	@import url('https://css.gg/backspace.css');
-
 	.key {
-		background-color: var(--color);
 		color: #fff;
 		border-radius: 4px;
 		flex: var(--flex);
@@ -38,5 +35,21 @@
 		font-weight: bold;
 		text-transform: uppercase;
 		user-select: none;
+	}
+
+	.key.nofeedback {
+		background-color: #818384;
+	}
+
+	.key.correct {
+		background-color: #538d4e;
+	}
+
+	.key.present {
+		background-color: #b59f3b;
+	}
+
+	.key.incorrect {
+		background-color: #3a3a3c;
 	}
 </style>

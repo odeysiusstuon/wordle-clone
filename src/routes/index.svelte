@@ -66,6 +66,9 @@
 			(latestGuess.guessed && !latestGuess.feedback.correct)) &&
 		!animating;
 
+	let playWinAnimation = false;
+	$: playWinAnimation = latestGuess && latestGuess.guessed && latestGuess.feedback.correct;
+
 	let toasts: string[] = [];
 
 	function addToast(message: string) {
@@ -73,6 +76,16 @@
 		setTimeout(() => {
 			toasts = toasts.slice(0, -1);
 		}, 1 * 1000);
+	}
+
+	async function onWin() {
+		playWinAnimation = true;
+		addToast('Splendid');
+		const winAudio = document.getElementById('win-audio');
+		if (winAudio && winAudio instanceof HTMLAudioElement) {
+			await winAudio.play();
+		}
+		setTimeout(() => (playWinAnimation = false), 5 * 1000);
 	}
 
 	async function makeGuess() {
@@ -98,6 +111,10 @@
 
 		animating = true;
 		setTimeout(() => (animating = false), animationDuration * letterLength);
+
+		if (latestGuess.guessed && latestGuess.feedback.correct) {
+			await onWin();
+		}
 	}
 
 	const keyboardMap = 'qwertyuiop\nasdfghjkl\n↵zxcvbnm←';
@@ -129,7 +146,6 @@
 	}
 
 	async function onKeyPress(event: KeyboardEvent) {
-		console.log(event);
 		let key = event.key;
 		if (key === KeyboardEnums.Keys.Enter) {
 			key = '↵';
@@ -148,7 +164,8 @@
 	/>
 </svelte:head>
 <svelte:window on:keydown={onKeyPress} />
-<div class="main">
+<div class="main" class:win={playWinAnimation}>
+	<audio id="win-audio" src="win_sfx.mp3" />
 	<div class="header">
 		<div class="header-buttons-left">
 			<a class="home" href="https://thebar.world/">
@@ -180,13 +197,6 @@
 
 		<br />
 
-		<!-- {#if currentNumAttempts > 0 && latestGuess}
-			That guess is {latestGuess.guessed && latestGuess.feedback.correct
-				? 'correct!'
-				: 'not correct!'}
-			<br />
-		{/if} -->
-
 		<div class="toaster">
 			<Toaster {toasts} />
 		</div>
@@ -198,17 +208,9 @@
 				{currentGuessWord}
 				{currentNumAttempts}
 				{animationDuration}
+				{animating}
 			/>
 		</div>
-
-		<!-- {#if currentNumAttempts === 0}
-			Guess a word!
-		{/if} -->
-
-		<!-- {#if currentNumAttempts >= maxGuesses}
-			You have no more attempts left!
-			<br />
-		{/if} -->
 	</div>
 	<div class="keyboard">
 		<Keyboard on:keypress={onKeyboardPress} {guesses} disabled={!canGuess} {keyboardMap} />
@@ -227,6 +229,10 @@
 		height: 100vh;
 		justify-content: center;
 		align-items: center;
+	}
+
+	.main.win {
+		background-image: url('win_confetti.gif');
 	}
 
 	.header {

@@ -8,6 +8,8 @@
 
 	export let animationDuration: number = 0;
 
+	export let alwaysShowTbdTiles: boolean = false;
+
 	export let rowIndex: number;
 	export let guess: Guess;
 	export let currentNumAttempts: number;
@@ -47,14 +49,17 @@
 <div class="row" in:shakeTransition>
 	{#if guess.guessed}
 		{#each toArray(guess.word) as letter, j (j)}
-			<Tile
-				{letter}
-				guessed={guess.guessed}
-				animationDelay={j * animationDuration}
-				{animationDuration}
-				feedback={guess.feedback.hint.letters[j]}
-				isWinTile={guess.feedback.correct && !animating}
-			/>
+			{#if alwaysShowTbdTiles}
+				<Tile
+					{letter}
+					guessed={guess.guessed && guess.feedback.hint.letters[j] !== LetterFeedback.None}
+					animationDelay={j * animationDuration}
+					{animationDuration}
+					feedback={guess.feedback.hint.letters[j]}
+					isWinTile={guess.feedback.correct && !animating}
+					--delay={`${j * animationDuration}ms`}
+				/>
+			{/if}
 		{/each}
 	{:else}
 		{#each Array(numColumns) as _, j (j)}

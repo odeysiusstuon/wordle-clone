@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Tileset from '$lib/tileset.svelte';
-	import { LetterFeedback, type Guess } from '$lib/types';
+	import { LetterFeedback, letterLength, type Guess } from '$lib/types';
 
 	const firstGuesses: Guess[] = [
 		{
@@ -55,7 +55,27 @@
 
 <p><strong>Examples</strong></p>
 
-<Tileset numRows={1} guesses={firstGuesses} currentNumAttempts={0} currentGuessWord="" />
+<Tileset
+	guesses={firstGuesses}
+	currentNumAttempts={0}
+	currentGuessWord=""
+	alwaysShowTbdTiles
+	--num-rows={1}
+	--num-columns={letterLength}
+	--tile-height="60px"
+/>
+
+<!-- <Tileset
+				bind:this={tileset}
+				{guesses}
+				{currentGuessWord}
+				{currentNumAttempts}
+				{animationDuration}
+				{animating}
+				--num-rows={maxGuesses}
+				--num-columns={letterLength}
+				--tile-height="60px"
+			/> -->
 
 <p>
 	The letters <strong>V</strong> and <strong>I</strong> are in the word and in the correct spot.
@@ -63,7 +83,15 @@
 	The letter <strong>E</strong> is in the word but in the wrong spot.
 </p>
 
-<Tileset numRows={1} guesses={secondGuesses} currentNumAttempts={0} currentGuessWord="" />
+<Tileset
+	guesses={secondGuesses}
+	currentNumAttempts={0}
+	currentGuessWord=""
+	alwaysShowTbdTiles
+	--num-rows={1}
+	--num-columns={letterLength}
+	--tile-height="60px"
+/>
 
 <p>The letters <strong>D</strong> and <strong>M</strong> are not in the word in any spot.</p>
 

@@ -232,6 +232,7 @@
 				{currentNumAttempts}
 				{animationDuration}
 				{animating}
+				shakingAllowed
 				--num-rows={maxGuesses}
 				--num-columns={letterLength}
 				--tile-height="60px"

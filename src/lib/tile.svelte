@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { LetterFeedback, getFeedbackClass, type TransitionProps } from './types';
+	import { LetterFeedback, getFeedbackClass, type TransitionProps } from '$lib/types';
 
 	export let feedback: LetterFeedback = LetterFeedback.None;
 	export let letter: string = '';
@@ -36,17 +36,12 @@
 	}
 </script>
 
-{#if guessed && animationDuration > 0}
+{#if guessed}
 	{#key guessed}
 		<!-- For some reason, this needs to be in a template bracket AND
 			template string, otherwise the flip transition does not
 			change its class. -->
-		<div
-			class={`tile guessed`}
-			class:win={isWinTile}
-			style={`--delay: ${animationDelay}ms;`}
-			in:flip
-		>
+		<div class={`tile guessed`} class:win={isWinTile} in:flip>
 			{letter}
 		</div>
 	{/key}

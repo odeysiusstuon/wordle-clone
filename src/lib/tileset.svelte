@@ -1,19 +1,26 @@
 <script lang="ts">
-	import { type Guess, letterLength, type TransitionProps } from './types';
+	import { type Guess, letterLength } from './types';
 	import TilesetRow from '$lib/tileset_row.svelte';
 	import { debounce } from 'lodash';
 
-	export let numRows = 6;
 	export let numColumns = letterLength;
 
 	export let tileWidth: string = '60px';
 
 	export let animationDuration: number = 0;
 
+	// Makes tiles without feedback always show as
+	// tbd tiles (i.e., tiles with outlines), even
+	// when a "guess" is present for the tile.
+	// This is especially useful for static tiles, as
+	// is shown in the help popup.
+	export const alwaysShowTbdTiles: boolean = false;
+
 	export let guesses: Guess[];
 	export let currentNumAttempts: number;
 	export let currentGuessWord: string;
 	export let animating: boolean = false;
+	export let shakingAllowed: boolean = false;
 
 	const shakeDuration = 500;
 
@@ -30,7 +37,7 @@
 
 <div class="tileset">
 	{#each guesses as guess, rowIndex}
-		{#if rowIndex === currentNumAttempts}
+		{#if rowIndex === currentNumAttempts && shakingAllowed}
 			{#key shakeKey}
 				<TilesetRow
 					{guess}
@@ -41,9 +48,10 @@
 					{currentGuessWord}
 					{animating}
 					{shakeDuration}
+					shouldShake
+					alwaysShowTbdTiles
 					--num-columns={numColumns}
 					--tile-width={tileWidth}
-					shouldShake
 				/>
 			{/key}
 		{:else}
@@ -55,6 +63,7 @@
 				{currentNumAttempts}
 				{currentGuessWord}
 				{animating}
+				alwaysShowTbdTiles
 				--num-columns={numColumns}
 				--tile-width={tileWidth}
 			/>

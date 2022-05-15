@@ -28,15 +28,23 @@
 
 	import '../styles/global.css';
 
+	import { settingsStore } from '$lib/stores/settings_store';
+	const { winConfetti, winSound } = settingsStore;
+
 	import Keyboard from '$lib/keyboard.svelte';
 	import Tileset from '$lib/tileset.svelte';
 	import { type Guess, type GuessFeedback, type Word, letterLength } from '$lib/types';
 	import { keyToCharacter } from '$lib/utils';
 	import Toaster from '$lib/toaster.svelte';
 	import HelpPopup from '$lib/help_popup.svelte';
+	import SettingsPopup from '$lib/settings_popup.svelte';
 
 	const helpModal = writable(null);
 	const showHelpModal = () => helpModal.set(bind(HelpPopup, {}));
+	const settingsModal = writable(null);
+	const showSettingsModal = () => settingsModal.set(bind(SettingsPopup, {}));
+
+	const modalWindowStyle = { backgroundColor: '#222', color: '#fff', textAlign: 'left' };
 
 	const validateUrl = '/word/validate.json';
 
@@ -51,8 +59,8 @@
 			guessed: false
 		};
 	}
-	let currentGuessWord = '';
-	let currentNumAttempts = 0;
+	let currentGuessWord: string = '';
+	let currentNumAttempts: number = 0;
 
 	let latestGuess: Guess;
 
@@ -66,8 +74,9 @@
 			(latestGuess.guessed && !latestGuess.feedback.correct)) &&
 		!animating;
 
-	let playWinAnimation = false;
-	$: playWinAnimation = latestGuess && latestGuess.guessed && latestGuess.feedback.correct;
+	let playWinAnimation: boolean = false;
+	$: playWinAnimation =
+		$winConfetti && latestGuess && latestGuess.guessed && latestGuess.feedback.correct;
 
 	let toasts: string[] = [];
 
@@ -79,13 +88,18 @@
 	}
 
 	async function onWin() {
-		playWinAnimation = true;
 		addToast('Splendid');
-		const winAudio = document.getElementById('win-audio');
-		if (winAudio && winAudio instanceof HTMLAudioElement) {
-			await winAudio.play();
+
+		if ($winSound) {
+			const winAudio = document.getElementById('win-audio');
+			if (winAudio && winAudio instanceof HTMLAudioElement) {
+				await winAudio.play();
+			}
 		}
-		setTimeout(() => (playWinAnimation = false), 5 * 1000);
+
+		if ($winConfetti) {
+			setTimeout(() => (playWinAnimation = false), 5 * 1000);
+		}
 	}
 
 	async function makeGuess() {
@@ -171,10 +185,7 @@
 			<a class="home" href="https://thebar.world/">
 				<span class="material-symbols-outlined"> home </span>
 			</a>
-			<Modal
-				show={$helpModal}
-				styleWindow={{ backgroundColor: '#222', color: '#fff', textAlign: 'left' }}
-			>
+			<Modal show={$helpModal} styleWindow={modalWindowStyle}>
 				<button class="help" on:click={showHelpModal}>
 					<span class="material-symbols-outlined"> help </span>
 				</button>
@@ -187,9 +198,11 @@
 			<button class="statistics">
 				<span class="material-symbols-outlined"> leaderboard </span>
 			</button>
-			<button class="settings">
-				<span class="material-symbols-outlined"> settings </span>
-			</button>
+			<Modal show={$settingsModal} styleWindow={modalWindowStyle}>
+				<button class="settings" on:click={showSettingsModal}>
+					<span class="material-symbols-outlined"> settings </span>
+				</button>
+			</Modal>
 		</div>
 	</div>
 	<div class="container">
@@ -231,8 +244,21 @@
 		align-items: center;
 	}
 
-	.main.win {
-		background-image: url('win_confetti.gif');
+	.main::after {
+		opacity: 0;
+		position: absolute;
+		content: '';
+		width: 100%;
+		height: 100%;
+		background: url('win_confetti.gif');
+		background-repeat: repeat;
+		transition: opacity 1s;
+		pointer-events: none;
+	}
+
+	.main.win::after {
+		opacity: 1;
+		transition: opacity 0s;
 	}
 
 	.header {

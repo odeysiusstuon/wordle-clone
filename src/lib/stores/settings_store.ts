@@ -1,4 +1,5 @@
-import { writable, type Writable } from 'svelte/store';
+import { autoUpdateWritableStorage, getWritableBooleanFromStorage } from '$lib/utils';
+import type { Writable } from 'svelte/store';
 
 class SettingsStore {
 	public winConfetti: Writable<boolean>;
@@ -6,27 +7,13 @@ class SettingsStore {
 	public barColorTiles: Writable<boolean>;
 
 	constructor() {
-		if (localStorage.getItem('winConfetti') === null) {
-			this.winConfetti = writable(true);
-		} else {
-			this.winConfetti = writable(localStorage.getItem('winConfetti') === 'true');
-		}
+		this.winConfetti = getWritableBooleanFromStorage(localStorage, 'winConfetti', true);
+		this.winSound = getWritableBooleanFromStorage(localStorage, 'winSound', true);
+		this.barColorTiles = getWritableBooleanFromStorage(localStorage, 'barColorTiles', false);
 
-		if (localStorage.getItem('winSound') === null) {
-			this.winSound = writable(true);
-		} else {
-			this.winSound = writable(localStorage.getItem('winSound') === 'true');
-		}
-
-		if (localStorage.getItem('barColorTiles') === null) {
-			this.barColorTiles = writable(false);
-		} else {
-			this.barColorTiles = writable(localStorage.getItem('barColorTiles') === 'true');
-		}
-
-		this.winConfetti.subscribe((v) => localStorage.setItem('winConfetti', `${v}`));
-		this.winSound.subscribe((v) => localStorage.setItem('winSound', `${v}`));
-		this.barColorTiles.subscribe((v) => localStorage.setItem('barColorTiles', `${v}`));
+		autoUpdateWritableStorage(localStorage, 'winConfetti', this.winConfetti);
+		autoUpdateWritableStorage(localStorage, 'winSound', this.winSound);
+		autoUpdateWritableStorage(localStorage, 'barColorTiles', this.barColorTiles);
 	}
 }
 

@@ -38,7 +38,6 @@
 	import Toaster from '$lib/toaster.svelte';
 	import HelpPopup from '$lib/help_popup.svelte';
 	import SettingsPopup from '$lib/settings_popup.svelte';
-	import { has } from 'lodash';
 
 	const helpModal = writable(null);
 	const showHelpModal = () => helpModal.set(bind(HelpPopup, {}));

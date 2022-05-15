@@ -65,18 +65,6 @@
 	--tile-height="60px"
 />
 
-<!-- <Tileset
-				bind:this={tileset}
-				{guesses}
-				{currentGuessWord}
-				{currentNumAttempts}
-				{animationDuration}
-				{animating}
-				--num-rows={maxGuesses}
-				--num-columns={letterLength}
-				--tile-height="60px"
-			/> -->
-
 <p>
 	The letters <strong>V</strong> and <strong>I</strong> are in the word and in the correct spot.
 	<br />
@@ -94,6 +82,9 @@
 />
 
 <p>The letters <strong>D</strong> and <strong>M</strong> are not in the word in any spot.</p>
+
+(Note: If you use a different tile color them from the default WORDLE one, this is a helpful guide
+for understanding what tile colors represent what).
 
 <hr />
 

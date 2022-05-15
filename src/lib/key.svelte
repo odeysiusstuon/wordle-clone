@@ -35,18 +35,18 @@
 	}
 
 	.key.nofeedback {
-		background-color: #818384;
+		background-color: var(--key-nofeedback-color);
 	}
 
 	.key.correct {
-		background-color: #538d4e;
+		background-color: var(--key-correct-color);
 	}
 
 	.key.present {
-		background-color: #b59f3b;
+		background-color: var(--key-present-color);
 	}
 
 	.key.incorrect {
-		background-color: #3a3a3c;
+		background-color: var(--key-incorrect-color);
 	}
 </style>

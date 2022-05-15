@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settingsStore } from '$lib/stores/settings_store';
-	const { winConfetti, winSound } = settingsStore;
+	const { winConfetti, winSound, barColorTiles } = settingsStore;
 </script>
 
 <h1>Settings</h1>
@@ -16,6 +16,7 @@
 	</div>
 	<label for="win-confetti-input">Show win confetti</label>
 </div>
+
 <div class="input-div">
 	<div
 		id="win-sound-input"
@@ -26,6 +27,18 @@
 		<span class="material-symbols-outlined knob" class:selected={$winSound}>circle</span>
 	</div>
 	<label for="win-sound-input">Play win sound</label>
+</div>
+
+<div class="input-div">
+	<div
+		id="bar-color-tiles-input"
+		class="radio-input"
+		on:click|preventDefault={() => barColorTiles.update((v) => !v)}
+		class:selected={$barColorTiles}
+	>
+		<span class="material-symbols-outlined knob" class:selected={$barColorTiles}>circle</span>
+	</div>
+	<label for="bar-color-tiles-input">Use BAR colors</label>
 </div>
 
 <style>

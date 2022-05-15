@@ -71,28 +71,28 @@
 
 	.tile.empty,
 	.tile.guessed {
-		background-color: transparent;
-		outline: #3a3a3c solid 2px;
+		background-color: var(--empty-tile-background-color);
+		outline: var(--empty-tile-outline);
 	}
 
 	.tile.tbd {
-		background-color: transparent;
-		outline: #525256 solid 2px;
+		background-color: var(--tbd-tile-background-color);
+		outline: var(--tbd-tile-outline);
 	}
 
 	.tile.correct {
-		background-color: #538d4e;
-		outline: #538d4e solid 2px;
+		background-color: var(--correct-tile-background-color);
+		outline: var(--correct-tile-outline);
 	}
 
 	.tile.present {
-		background-color: #b59f3b;
-		outline: #b59f3b solid 2px;
+		background-color: var(--present-tile-background-color);
+		outline: var(--present-tile-outline);
 	}
 
 	.tile.incorrect {
-		background-color: #3a3a3c;
-		outline: #3a3a3c solid 2px;
+		background-color: var(--incorrect-tile-background-color);
+		outline: var(--incorrect-tile-outline);
 	}
 
 	.tile.win {

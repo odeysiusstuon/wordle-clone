@@ -1,0 +1,21 @@
+:root {
+	--empty-tile-background-color: transparent;
+	--empty-tile-outline: #3a3a3c solid 2px;
+
+	--tbd-tile-background-color: transparent;
+	--tbd-tile-outline: #525256 solid 2px;
+
+	--correct-tile-background-color: #4d4dff;
+	--correct-tile-outline: #4d4dff solid 2px;
+
+	--present-tile-background-color: #00aff0;
+	--present-tile-outline: #00aff0 solid 2px;
+
+	--incorrect-tile-background-color: #e1221a;
+	--incorrect-tile-outline: #e1221a solid 2px;
+
+	--key-nofeedback-color: #818384;
+	--key-correct-color: var(--correct-tile-background-color);
+	--key-present-color: var(--present-tile-background-color);
+	--key-incorrect-color: var(--incorrect-tile-background-color);
+}

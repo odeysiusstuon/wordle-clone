@@ -2,12 +2,13 @@ import { previousUrl, type Guess, type PlayerStatistics, type PlayerWord } from 
 import moment from 'moment';
 import { get } from 'svelte/store';
 import { settingsStore } from './settings_store';
+import { browser } from '$app/env';
 
 export class StatisticsStore {
 	private playerStatistics: PlayerStatistics;
 
 	constructor() {
-		if (get(settingsStore.saveProgress)) {
+		if (get(settingsStore.saveProgress) && browser) {
 			this.loadPlayerStatistics();
 		} else {
 			this.playerStatistics = {

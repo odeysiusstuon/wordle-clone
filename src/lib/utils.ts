@@ -2,6 +2,7 @@ import type { Keyboard } from '@etsoo/shared';
 import { writable, type Writable } from 'svelte/store';
 import { emojiMappings, maxGuesses, type Guess, type PlayerWord } from './types';
 import type { StatisticsStore } from '$lib/stores/statistics_store';
+import { browser } from '$app/env';
 
 export function keyToCharacter(key: Keyboard.Codes) {
 	return key[3].toLowerCase();
@@ -28,6 +29,7 @@ export function copyGuessesToClipboard(
 	currentWord: PlayerWord,
 	addToast: (message: string) => void = undefined
 ) {
+	if (!browser) return;
 	const guesses = statisticsStore.getGuesses(currentWord);
 	const guessesEmojis = guessListToEmojis(guesses);
 

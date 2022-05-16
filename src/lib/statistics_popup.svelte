@@ -1,13 +1,14 @@
 <script lang="ts">
-	import { statisticsStore } from '$lib/stores/statistics_store';
 	import moment from 'moment';
 	import type { Readable } from 'svelte/store';
 	import countdownStore from './stores/countdown_store';
 	import { Circle2 } from 'svelte-loading-spinners';
+	import { browser } from '$app/env';
 
 	import { nextUrl, type PlayerWord } from './types';
 	import { copyGuessesToClipboard } from './utils';
 	import { nextWord } from './stores/cache_store';
+	import { statisticsStore } from '$lib/stores/statistics_store';
 
 	export let currentWord: PlayerWord;
 	export let showShareButton: boolean = false;
@@ -63,28 +64,30 @@
 
 	<div class="statistics">
 		<div class="stat total-plays">
-			{statisticsStore.getTotalPlays()}
+			{browser && statisticsStore.getTotalPlays()}
 			<p class="label">Played</p>
 		</div>
 
 		<div class="stat total-won">
-			{statisticsStore.getTotalWins()}
+			{browser && statisticsStore.getTotalWins()}
 			<p class="label">Won</p>
 		</div>
 
 		<div class="stat win-rate">
-			{Math.round((statisticsStore.getTotalWins() / statisticsStore.getTotalPlays()) * 10000) /
-				100 || '0.00'}%
+			{browser &&
+				(Math.round((statisticsStore.getTotalWins() / statisticsStore.getTotalPlays()) * 10000) /
+					100 ||
+					'0.00')}%
 			<p class="label">Win Rate</p>
 		</div>
 
 		<div class="stat current-streak">
-			{statisticsStore.getCurrentStreak()}
+			{browser && statisticsStore.getCurrentStreak()}
 			<p class="label">Current Streak</p>
 		</div>
 
 		<div class="stat max-streak">
-			{statisticsStore.getMaxStreak()}
+			{browser && statisticsStore.getMaxStreak()}
 			<p class="label">Max Streak</p>
 		</div>
 	</div>

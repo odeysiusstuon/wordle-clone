@@ -6,25 +6,28 @@
 		if (res.ok) {
 			const { word } = await res.json();
 
-			statisticsStore.addDayIfNotPresent(word);
-			let guesses = statisticsStore.getGuesses(word);
+			let guesses: Guess[] = [];
 			let currentNumAttempts = 0;
+			if (browser) {
+				statisticsStore.addDayIfNotPresent(word);
+				guesses = statisticsStore.getGuesses(word);
 
-			if (guesses === null || guesses.length === 0) {
-				guesses = new Array(maxGuesses).fill({
-					guessed: false
-				});
-				guesses.forEach((g, i) => statisticsStore.setGuess(word, i, g));
-			} else {
-				if (guesses !== null) {
-					let latestGuess: Guess;
-					for (const guess of guesses) {
-						if (guess.guessed) {
-							latestGuess = guess;
+				if (guesses === null || guesses.length === 0) {
+					guesses = new Array(maxGuesses).fill({
+						guessed: false
+					});
+					guesses.forEach((g, i) => statisticsStore.setGuess(word, i, g));
+				} else {
+					if (guesses !== null) {
+						let latestGuess: Guess;
+						for (const guess of guesses) {
+							if (guess.guessed) {
+								latestGuess = guess;
+							}
 						}
-					}
-					if (latestGuess && latestGuess.guessed) {
-						currentNumAttempts = latestGuess.attemptNum;
+						if (latestGuess && latestGuess.guessed) {
+							currentNumAttempts = latestGuess.attemptNum;
+						}
 					}
 				}
 			}
@@ -79,6 +82,7 @@
 	import SettingsPopup from '$lib/settings_popup.svelte';
 	import StatisticsPopup from '$lib/statistics_popup.svelte';
 	import { onMount } from 'svelte';
+	import { browser } from '$app/env';
 
 	const helpModal = writable(null);
 	const showHelpModal = () => helpModal.set(bind(HelpPopup, {}));
@@ -153,14 +157,18 @@
 				}
 			}
 
-			await statisticsStore.addWin();
-			statisticsStore.savePlayerStatistics();
+			if (browser) {
+				await statisticsStore.addWin();
+				statisticsStore.savePlayerStatistics();
+			}
 
 			if ($winConfetti) {
 				setTimeout(() => (playWinAnimation = false), 5 * 1000);
 			}
 		} else {
-			statisticsStore.addLoss();
+			if (browser) {
+				statisticsStore.addLoss();
+			}
 		}
 
 		if ($autoCopyResults) {
@@ -198,7 +206,7 @@
 		currentGuessWord = '';
 		guesses[currentNumAttempts - 1] = guess;
 
-		if ($saveProgress) {
+		if (browser && $saveProgress) {
 			statisticsStore.addDayIfNotPresent(word);
 			statisticsStore.setGuess(word, currentNumAttempts - 1, guess);
 			statisticsStore.savePlayerStatistics();

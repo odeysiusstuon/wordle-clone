@@ -9,6 +9,7 @@
 	export let animationDuration: number = 0;
 
 	export let alwaysShowTbdTiles: boolean = false;
+	export let animateFinishedRefresh: boolean = false;
 
 	export let rowIndex: number;
 	export let guess: Guess;
@@ -55,6 +56,7 @@
 					guessed={guess.guessed && guess.feedback.hint.letters[j] !== LetterFeedback.None}
 					animationDelay={j * animationDuration}
 					{animationDuration}
+					{animateFinishedRefresh}
 					feedback={guess.feedback.hint.letters[j]}
 					isWinTile={guess.feedback.correct && !animating}
 					--delay={`${j * animationDuration}ms`}
@@ -64,9 +66,23 @@
 	{:else}
 		{#each Array(numColumns) as _, j (j)}
 			{#if rowIndex === currentNumAttempts}
-				<Tile letter={currentGuessWord[j] || ''} feedback={LetterFeedback.None} />
+				<Tile
+					letter={currentGuessWord[j] || ''}
+					feedback={LetterFeedback.None}
+					animationDelay={j * animationDuration}
+					{animationDuration}
+					{animateFinishedRefresh}
+					--delay={`${j * animationDuration}ms`}
+				/>
 			{:else}
-				<Tile letter="" feedback={LetterFeedback.None} />
+				<Tile
+					letter=""
+					feedback={LetterFeedback.None}
+					animationDelay={j * animationDuration}
+					{animationDuration}
+					{animateFinishedRefresh}
+					--delay={`${j * animationDuration}ms`}
+				/>
 			{/if}
 		{/each}
 	{/if}

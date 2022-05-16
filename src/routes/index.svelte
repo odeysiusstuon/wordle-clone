@@ -39,8 +39,12 @@
 			};
 		} else {
 			return {
-				status: res.status,
-				error: res.error
+				status: 200,
+				props: {
+					word: null,
+					guesses: [],
+					currentNumAttempts: 0
+				}
 			};
 		}
 	}
@@ -74,7 +78,7 @@
 	import HelpPopup from '$lib/help_popup.svelte';
 	import SettingsPopup from '$lib/settings_popup.svelte';
 	import StatisticsPopup from '$lib/statistics_popup.svelte';
-	import moment from 'moment';
+	import { onMount } from 'svelte';
 
 	const helpModal = writable(null);
 	const showHelpModal = () => helpModal.set(bind(HelpPopup, {}));
@@ -108,21 +112,22 @@
 
 	export let guesses: Guess[];
 	export let currentNumAttempts: number = 0;
-	let latestGuess: Guess = guesses[currentNumAttempts - 1] || null;
+	let latestGuess: Guess = guesses ? guesses[currentNumAttempts - 1] || null : null;
 	let currentGuessWord: string = '';
 
-	$: latestGuess = guesses[currentNumAttempts - 1] || null;
+	$: latestGuess = guesses ? guesses[currentNumAttempts - 1] || null : null;
 
 	let animating: boolean = false;
-	let timeSpent = moment.duration(statisticsStore.getCurrentTimeSpentMs(word));
 
-	let hasWon: boolean = false;
-	$: hasWon = latestGuess && latestGuess.guessed && latestGuess.feedback.correct;
+	let hasFinished: boolean = false;
+	$: hasFinished =
+		(latestGuess && latestGuess.guessed && latestGuess.feedback.correct) ||
+		currentNumAttempts >= maxGuesses;
 
 	let canGuess: boolean = true;
 	$: canGuess =
 		currentNumAttempts < maxGuesses &&
-		(!latestGuess || !latestGuess.guessed || !hasWon) &&
+		(!latestGuess || !latestGuess.guessed || !hasFinished) &&
 		!animating;
 
 	let toasts: string[] = [];
@@ -135,30 +140,34 @@
 	}
 
 	let playWinAnimation: boolean = false;
-	async function onWin() {
-		playWinAnimation =
-			$winConfetti && latestGuess && latestGuess.guessed && latestGuess.feedback.correct;
-		addToast('Splendid');
+	async function onFinish(won: boolean) {
+		if (won) {
+			playWinAnimation =
+				$winConfetti && latestGuess && latestGuess.guessed && latestGuess.feedback.correct;
+			addToast('Splendid');
 
-		if ($winSound) {
-			const winAudio = document.getElementById('win-audio');
-			if (winAudio && winAudio instanceof HTMLAudioElement) {
-				await winAudio.play();
+			if ($winSound) {
+				const winAudio = document.getElementById('win-audio');
+				if (winAudio && winAudio instanceof HTMLAudioElement) {
+					await winAudio.play();
+				}
 			}
-		}
 
-		statisticsStore.addWin();
-		statisticsStore.savePlayerStatistics();
+			statisticsStore.addWin();
+			statisticsStore.savePlayerStatistics();
+
+			if ($winConfetti) {
+				setTimeout(() => (playWinAnimation = false), 5 * 1000);
+			}
+		} else {
+			statisticsStore.addLoss();
+		}
 
 		if ($autoCopyResults) {
 			copyGuessesToClipboard(statisticsStore, word);
 		}
 
 		showStatisticsModal(true);
-
-		if ($winConfetti) {
-			setTimeout(() => (playWinAnimation = false), 5 * 1000);
-		}
 	}
 
 	let tileset: Tileset;
@@ -199,7 +208,9 @@
 		setTimeout(() => (animating = false), animationDuration * letterLength);
 
 		if (guess.guessed && guess.feedback.correct) {
-			await onWin();
+			await onFinish(true);
+		} else if (currentNumAttempts >= maxGuesses) {
+			await onFinish(false);
 		}
 	}
 
@@ -241,6 +252,14 @@
 
 		await handleKeyPress(event.code as KeyboardEnums.Codes, key);
 	}
+
+	let animateFinishedRefresh = false;
+	onMount(() => {
+		if (hasFinished) {
+			showStatisticsModal(true);
+			animateFinishedRefresh = true;
+		}
+	});
 </script>
 
 <svelte:head>
@@ -254,26 +273,31 @@
 
 <div class="main" class:win={playWinAnimation}>
 	<audio id="win-audio" src="win_sfx.mp3" />
+
 	<div class="header">
 		<div class="header-buttons-left">
 			<a class="home" href="https://thebar.world/">
 				<span class="material-symbols-outlined"> home </span>
 			</a>
+
 			<Modal show={$helpModal} styleWindow={modalWindowStyle}>
 				<button class="help" on:click={showHelpModal}>
 					<span class="material-symbols-outlined"> help </span>
 				</button>
 			</Modal>
 		</div>
+
 		<div class="heading">
 			<h1>BARdle</h1>
 		</div>
+
 		<div class="header-buttons-right">
 			<Modal show={$statisticsModal} styleWindow={modalWindowStyle}>
-				<button class="statistics" on:click={() => showStatisticsModal()}>
+				<button class="statistics" on:click={() => showStatisticsModal(hasFinished)}>
 					<span class="material-symbols-outlined"> leaderboard </span>
 				</button>
 			</Modal>
+
 			<Modal show={$settingsModal} styleWindow={modalWindowStyle}>
 				<button class="settings" on:click={showSettingsModal}>
 					<span class="material-symbols-outlined"> settings </span>
@@ -281,33 +305,42 @@
 			</Modal>
 		</div>
 	</div>
-	<div class="container">
-		wordId: {word.wordId}, date: {word.date}, time spent: {timeSpent.humanize()}
 
-		<br />
+	{#if word === null}
+		<div class="container">
+			<div class="tileset">
+				<h1>Could not load today's word</h1>
+				<h2>Try refreshing</h2>
+				<img src="the-bar-logo-v2-medium.png" alt="The BAR Logo" draggable="false" />
+			</div>
+		</div>
+	{:else}
+		<div class="container">
+			<div class="toaster">
+				<Toaster {toasts} />
+			</div>
 
-		<div class="toaster">
-			<Toaster {toasts} />
+			<div class="tileset">
+				<Tileset
+					bind:this={tileset}
+					{guesses}
+					{currentGuessWord}
+					{currentNumAttempts}
+					{animationDuration}
+					{animating}
+					{animateFinishedRefresh}
+					shakingAllowed
+					--num-rows={maxGuesses}
+					--num-columns={letterLength}
+					--tile-height="60px"
+				/>
+			</div>
 		</div>
 
-		<div class="tileset">
-			<Tileset
-				bind:this={tileset}
-				{guesses}
-				{currentGuessWord}
-				{currentNumAttempts}
-				{animationDuration}
-				{animating}
-				shakingAllowed
-				--num-rows={maxGuesses}
-				--num-columns={letterLength}
-				--tile-height="60px"
-			/>
+		<div class="keyboard">
+			<Keyboard on:keypress={onKeyboardPress} {guesses} disabled={!canGuess} {keyboardMap} />
 		</div>
-	</div>
-	<div class="keyboard">
-		<Keyboard on:keypress={onKeyboardPress} {guesses} disabled={!canGuess} {keyboardMap} />
-	</div>
+	{/if}
 </div>
 
 <style>

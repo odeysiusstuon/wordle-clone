@@ -80,11 +80,13 @@ export interface IDatabase {
 	getLatestWord: () => Promise<Word>;
 	getLatestPlayerWord: () => Promise<PlayerWord>;
 	getNextPlayerWord: () => Promise<PlayerWord>;
+	getPreviousPlayerWord: () => Promise<PlayerWord>;
 	getWordHistory: () => Promise<Word[]>;
 }
 
 export const latestUrl = '/word.json';
 export const validateUrl = '/word/validate.json';
 export const nextUrl = '/word/next.json';
+export const previousUrl = '/word/previous.json';
 
 export const maxGuesses = 6;

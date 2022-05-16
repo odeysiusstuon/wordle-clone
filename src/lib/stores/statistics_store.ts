@@ -1,4 +1,4 @@
-import type { Guess, PlayerStatistics, PlayerWord } from '$lib/types';
+import { previousUrl, type Guess, type PlayerStatistics, type PlayerWord } from '$lib/types';
 import moment from 'moment';
 import { get } from 'svelte/store';
 import { settingsStore } from './settings_store';
@@ -64,12 +64,31 @@ export class StatisticsStore {
 		this.addDay(word);
 	}
 
+	async wonPreviousDay() {
+		const res = await fetch(previousUrl);
+		const previousWord = (await res.json()) as PlayerWord;
+
+		if (!(previousWord.wordId in this.playerStatistics.days)) return false;
+		const previousDay = this.playerStatistics.days[previousWord.wordId];
+		return previousDay.guessList.some((g) => g.guessed && g.feedback.correct);
+	}
+
 	addWin() {
 		this.playerStatistics.totalWins++;
-		this.playerStatistics.currentStreak++;
+
+		if (this.wonPreviousDay()) {
+			this.playerStatistics.currentStreak++;
+		} else {
+			this.playerStatistics.currentStreak = 1;
+		}
+
 		if (this.playerStatistics.maxStreak < this.playerStatistics.currentStreak) {
 			this.playerStatistics.maxStreak = this.playerStatistics.currentStreak;
 		}
+	}
+
+	addLoss() {
+		this.playerStatistics.currentStreak = 0;
 	}
 
 	getAmountNthDegree(degree: number) {

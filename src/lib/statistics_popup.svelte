@@ -74,7 +74,7 @@
 
 		<div class="stat win-rate">
 			{Math.round((statisticsStore.getTotalWins() / statisticsStore.getTotalPlays()) * 10000) /
-				100}%
+				100 || '0.00'}%
 			<p class="label">Win Rate</p>
 		</div>
 

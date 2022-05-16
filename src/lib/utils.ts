@@ -2,6 +2,7 @@ import type { Keyboard } from '@etsoo/shared';
 import { writable, type Writable } from 'svelte/store';
 import { emojiMappings, maxGuesses, type Guess, type PlayerWord } from './types';
 import type { StatisticsStore } from '$lib/stores/statistics_store';
+import { flowRight } from 'lodash';
 
 export function keyToCharacter(key: Keyboard.Codes) {
 	return key[3].toLowerCase();
@@ -28,10 +29,15 @@ export function copyGuessesToClipboard(
 	currentWord: PlayerWord,
 	addToast: (message: string) => void = undefined
 ) {
-	const guessesEmojis = guessListToEmojis(statisticsStore.getGuesses(currentWord));
+	const guesses = statisticsStore.getGuesses(currentWord);
+	const guessesEmojis = guessListToEmojis(guesses);
 
 	let resultsString = '';
-	resultsString += `BARdle ${currentWord.num} ${guessesEmojis.length}/${maxGuesses}`;
+	if (guesses.some((g) => g.guessed && g.feedback.correct)) {
+		resultsString += `BARdle ${currentWord.num} ${guessesEmojis.length}/${maxGuesses}`;
+	} else {
+		resultsString += `BARdle ${currentWord.num} X/${maxGuesses}`;
+	}
 	resultsString += '\n\n';
 	resultsString += guessesEmojis.map((r) => r.join('')).join('\n');
 

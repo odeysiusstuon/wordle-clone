@@ -22,6 +22,8 @@
 	export let animating: boolean = false;
 	export let shakingAllowed: boolean = false;
 
+	export let animateFinishedRefresh: boolean = false;
+
 	const shakeDuration = 500;
 
 	// I really don't like this solution for manually
@@ -48,6 +50,7 @@
 					{currentGuessWord}
 					{animating}
 					{shakeDuration}
+					{animateFinishedRefresh}
 					shouldShake
 					alwaysShowTbdTiles
 					--num-columns={numColumns}
@@ -63,6 +66,7 @@
 				{currentNumAttempts}
 				{currentGuessWord}
 				{animating}
+				{animateFinishedRefresh}
 				alwaysShowTbdTiles
 				--num-columns={numColumns}
 				--tile-width={tileWidth}

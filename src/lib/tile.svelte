@@ -1,18 +1,21 @@
 <script lang="ts">
 	import { LetterFeedback, getFeedbackClass, type TransitionProps } from '$lib/types';
+	import { onMount } from 'svelte';
 
 	export let feedback: LetterFeedback = LetterFeedback.None;
 	export let letter: string = '';
+	export let animateFinishedRefresh: boolean = false;
 	export let animationDelay: number = 0;
 	export let animationDuration: number = 0;
 	export let guessed: boolean = false;
 	export let isWinTile: boolean = false;
+	let forceAnimateFinishedRefresh = false;
 	let isAnimating = false;
 
 	function flip(node: HTMLElement, params: any): TransitionProps {
 		isAnimating = true;
 		return {
-			delay: animationDelay,
+			delay: animationDelay / (animateFinishedRefresh ? 3 : 1),
 			duration: animationDuration,
 			css: (t) => {
 				const newT = 2 * Math.abs(t - 0.5);
@@ -39,20 +42,40 @@
 			}
 		};
 	}
+
+	onMount(() => {
+		forceAnimateFinishedRefresh = true;
+	});
 </script>
 
 {#if guessed}
-	{#key guessed}
-		<div
-			class={`tile guessed ${isAnimating ? '' : getFeedbackClass(feedback)}`}
-			class:win={isWinTile}
-			in:flip
-		>
+	{#if animateFinishedRefresh && forceAnimateFinishedRefresh}
+		<div class={`tile guessed ${isAnimating ? '' : getFeedbackClass(feedback)}`} in:flip>
 			{letter}
 		</div>
-	{/key}
+	{:else}
+		{#key guessed}
+			<div
+				class={`tile guessed ${isAnimating ? '' : getFeedbackClass(feedback)}`}
+				class:win={isWinTile}
+				in:flip
+			>
+				{letter}
+			</div>
+		{/key}
+	{/if}
 {:else if letter.length > 0}
-	<div class="tile tbd" in:bounce>
+	{#if animateFinishedRefresh}
+		<div class="tile tbd" in:flip>
+			{letter}
+		</div>
+	{:else}
+		<div class="tile tbd" in:bounce>
+			{letter}
+		</div>
+	{/if}
+{:else if animateFinishedRefresh}
+	<div class="tile empty" in:flip>
 		{letter}
 	</div>
 {:else}

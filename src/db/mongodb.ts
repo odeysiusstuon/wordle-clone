@@ -25,10 +25,6 @@ export class MongoDB implements IDatabase {
 			.sort({ date: 1 })
 			.toArray()) as WordDocument[];
 
-		for (let i = 0; i < wordCacheLimit; i++) {
-			words[i].num = await this.getWordNumber(words, words[i]);
-		}
-
 		this.wordCache = words.slice(0, wordCacheLimit);
 	}
 
@@ -93,6 +89,34 @@ export class MongoDB implements IDatabase {
 				num: word.num,
 				date: word.date
 			};
+		} else {
+			return null;
+		}
+	}
+
+	async getPreviousPlayerWord(): Promise<PlayerWord> {
+		const latestWord = await this.getLatestWord();
+		if (latestWord) {
+			const connection = await this.client;
+			const db = connection.db();
+			const collection = db.collection('words');
+			const previousWords = (await collection
+				.find({
+					date: { $lt: latestWord.date }
+				})
+				.sort({ date: -1 })
+				.limit(1)
+				.toArray()) as WordDocument[];
+			const previousWord = previousWords[0];
+			if (previousWord) {
+				return {
+					wordId: previousWord._id.toHexString(),
+					date: previousWord.date,
+					num: previousWord.num
+				};
+			} else {
+				return null;
+			}
 		} else {
 			return null;
 		}

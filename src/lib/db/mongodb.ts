@@ -4,14 +4,17 @@ import type { MongoClient, WithId } from 'mongodb';
 
 type WordDocument = WithId<Document> & Omit<Word, 'wordId'>;
 
+const wordCacheLimit = 2;
+
 export class MongoDB implements IDatabase {
 	client: Promise<MongoClient>;
+	wordCache: WordDocument[] = [];
 
 	constructor(client: Promise<MongoClient>) {
 		this.client = client;
 	}
 
-	async getLatestWord(): Promise<Word> {
+	private async fetchCache() {
 		const connection = await this.client;
 		const db = connection.db();
 		const collection = db.collection('words');
@@ -22,8 +25,31 @@ export class MongoDB implements IDatabase {
 			.sort({ date: 1 })
 			.toArray()) as WordDocument[];
 
-		if (words.length > 0) {
-			const word = words[0];
+		this.wordCache = words.slice(0, wordCacheLimit);
+	}
+
+	private async updateCache() {
+		if (this.wordCache.length > 0) {
+			if (this.wordCache.length === 1) {
+				await this.fetchCache();
+			} else {
+				const nextWord = this.wordCache[1];
+				const now = moment.utc();
+				const nextWordDate = moment(nextWord.date).utc();
+				if (now >= nextWordDate) {
+					await this.fetchCache();
+				}
+			}
+		} else {
+			await this.fetchCache();
+		}
+	}
+
+	async getLatestWord(): Promise<Word> {
+		await this.updateCache();
+
+		if (this.wordCache.length > 0) {
+			const word = this.wordCache[0];
 			return {
 				wordId: word._id.toHexString(),
 				num: word.num,
@@ -50,18 +76,10 @@ export class MongoDB implements IDatabase {
 	}
 
 	async getNextPlayerWord(): Promise<PlayerWord> {
-		const connection = await this.client;
-		const db = connection.db();
-		const collection = db.collection('words');
-		const words = (await collection
-			.find({
-				date: { $gte: moment.utc().startOf('day').subtract(1, 'day').toDate() }
-			})
-			.sort({ date: 1 })
-			.toArray()) as WordDocument[];
+		await this.updateCache();
 
-		if (words.length > 0) {
-			const word = words[1];
+		if (this.wordCache.length > 1) {
+			const word = this.wordCache[1];
 			return {
 				wordId: word._id.toHexString(),
 				num: word.num,
@@ -120,5 +138,15 @@ export class MongoDB implements IDatabase {
 				desc: w.desc
 			} as Word;
 		});
+	}
+
+	async wordExists(word: string) {
+		const connection = await this.client;
+		const db = connection.db();
+		const collection = db.collection('words');
+		const foundWord = await collection.findOne({
+			word
+		});
+		return foundWord !== null;
 	}
 }

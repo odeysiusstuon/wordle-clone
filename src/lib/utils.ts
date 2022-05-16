@@ -98,3 +98,9 @@ export function autoUpdateWritableStorage<T>(
 ) {
 	writable.subscribe((v) => localStorage.setItem(name, `${v}`));
 }
+
+export function ordinal(n: number) {
+	var s = ['th', 'st', 'nd', 'rd'];
+	var v = n % 100;
+	return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}

@@ -56,11 +56,13 @@
 <script lang="ts">
 	import Modal, { bind } from 'svelte-simple-modal';
 	import { writable } from 'svelte/store';
+	import lodash from 'lodash';
+	const { countBy } = lodash;
 
 	import '../styles/global.css';
 
 	import { settingsStore } from '$lib/stores/settings_store';
-	const { autoCopyResults, saveProgress, winConfetti, winSound } = settingsStore;
+	const { autoCopyResults, hardMode, saveProgress, winConfetti, winSound } = settingsStore;
 
 	import { statisticsStore } from '$lib/stores/statistics_store';
 
@@ -73,9 +75,10 @@
 		type PlayerWord,
 		maxGuesses,
 		validateUrl,
-		latestUrl
+		latestUrl,
+		LetterFeedback
 	} from '$lib/types';
-	import { copyGuessesToClipboard, keyToCharacter } from '$lib/utils';
+	import { copyGuessesToClipboard, keyToCharacter, ordinal } from '$lib/utils';
 	import Toaster from '$lib/toaster.svelte';
 	import HelpPopup from '$lib/help_popup.svelte';
 	import SettingsPopup from '$lib/settings_popup.svelte';
@@ -185,12 +188,60 @@
 		}
 	}
 
+	function isAllowedInHardMode(guessWord: string, letterHints: LetterFeedback[]) {
+		const guessWordLetterCount = countBy(guessWord);
+		const currentGuessWordLetterCount = countBy(currentGuessWord);
+
+		let allowed = true;
+		for (let i = 0; i < letterLength; i++) {
+			const feedback = letterHints[i];
+			const guessLetter = guessWord[i];
+			const currentGuessLetter = currentGuessWord[i];
+			if (feedback === LetterFeedback.Incorrect) continue;
+			if (feedback === LetterFeedback.Correct) {
+				if (currentGuessLetter !== guessLetter) {
+					addToast(`${ordinal(i + 1)} letter must be ${guessLetter.toUpperCase()}`);
+					allowed = false;
+					break;
+				}
+			} else if (feedback === LetterFeedback.Present) {
+				if (
+					!currentGuessWordLetterCount[guessLetter] ||
+					currentGuessWordLetterCount[guessLetter] < guessWordLetterCount[guessLetter]
+				) {
+					addToast(`Guess must contain ${guessLetter.toUpperCase()}`);
+					allowed = false;
+					break;
+				}
+			}
+		}
+
+		return allowed;
+	}
+
 	async function makeGuess() {
 		if (!canGuess) return;
 
 		if (currentGuessWord.length !== letterLength) {
 			onInsufficientInput();
 			return;
+		}
+
+		if (!(await wordExists())) {
+			addToast('Not in word list');
+			tileset.shakeLatestRow();
+			return;
+		}
+
+		if ($hardMode && latestGuess && latestGuess.guessed) {
+			const allowed = guesses.every((g, i) => {
+				if (!g.guessed || i === currentNumAttempts) return true;
+				return isAllowedInHardMode(g.word, g.feedback.hint.letters);
+			});
+			if (!allowed) {
+				tileset.shakeLatestRow();
+				return;
+			}
 		}
 
 		const res = await fetch(`${validateUrl}?guess=${currentGuessWord}`);
@@ -258,6 +309,14 @@
 		}
 
 		await handleKeyPress(event.code, key);
+	}
+
+	async function wordExists() {
+		const res = await fetch(`/word/exists/${currentGuessWord}.json`);
+		if (res.ok) {
+			return (await res.json()).exists;
+		}
+		return false;
 	}
 
 	let animateFinishedRefresh = false;

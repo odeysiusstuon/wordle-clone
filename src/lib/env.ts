@@ -1,5 +1,3 @@
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-export const env = process.env;
+export const variables = {
+	uri: import.meta.env.MONGODB_URI
+};

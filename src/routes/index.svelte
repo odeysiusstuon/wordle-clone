@@ -54,7 +54,6 @@
 </script>
 
 <script lang="ts">
-	import { Keyboard as KeyboardEnums } from '@etsoo/shared';
 	import Modal, { bind } from 'svelte-simple-modal';
 	import { writable } from 'svelte/store';
 
@@ -224,16 +223,16 @@
 
 	const keyboardMap = 'qwertyuiop\nasdfghjkl\n↵zxcvbnm←';
 
-	async function handleKeyPress(code: KeyboardEnums.Codes, character: string = undefined) {
+	async function handleKeyPress(code: string, character: string = undefined) {
 		if (!canGuess) return;
 		if (!(keyboardMap.indexOf(character) !== -1)) return;
 
 		switch (code) {
-			case KeyboardEnums.Codes.Enter:
-			case 'NumpadEnter' as KeyboardEnums.Codes:
+			case 'Enter':
+			case 'NumpadEnter':
 				await makeGuess();
 				break;
-			case KeyboardEnums.Codes.Backspace:
+			case 'Backspace':
 				if (currentGuessWord.length > 0) {
 					currentGuessWord = currentGuessWord.slice(0, -1);
 				}
@@ -252,13 +251,13 @@
 
 	async function onKeyPress(event: KeyboardEvent) {
 		let key = event.key;
-		if (key === KeyboardEnums.Keys.Enter) {
+		if (key === 'Enter') {
 			key = '↵';
-		} else if (key === KeyboardEnums.Keys.Backspace) {
+		} else if (key === 'Backspace') {
 			key = '←';
 		}
 
-		await handleKeyPress(event.code as KeyboardEnums.Codes, key);
+		await handleKeyPress(event.code, key);
 	}
 
 	let animateFinishedRefresh = false;

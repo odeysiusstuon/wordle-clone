@@ -1,7 +1,6 @@
 lockfileVersion: 5.3
 
 specifiers:
-  '@etsoo/shared': ^1.1.37
   '@sveltejs/adapter-auto': next
   '@sveltejs/kit': next
   '@types/lodash': ^4.14.182
@@ -21,7 +20,6 @@ specifiers:
   typescript: ~4.6.2
 
 dependencies:
-  '@etsoo/shared': 1.1.37
   dotenv: 16.0.0
   lodash: 4.17.21
   moment: 2.29.3
@@ -43,10 +41,6 @@ devDependencies:
   typescript: 4.6.3
 
 packages:
-
-  /@etsoo/shared/1.1.37:
-    resolution: {integrity: sha512-o7/Oukt+UMsabxqBrhgGfsBN1EAoRP8SlhitpDVFxFLai3QgohyIGNqeJwTEdzrbByfpbg4jPK/z95hbG6VyUg==}
-    dev: false
 
   /@iarna/toml/2.2.5:
     resolution: {integrity: sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==}

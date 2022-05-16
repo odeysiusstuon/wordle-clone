@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { toArray } from 'lodash';
+	import lodash from 'lodash';
+	const { toArray } = lodash;
 	import { createEventDispatcher } from 'svelte';
-	import { Keyboard } from '@etsoo/shared';
 
 	import Key from './key.svelte';
 	import { characterToKey } from './utils';
@@ -18,7 +18,7 @@
 					display: 'Enter',
 					backspace: false,
 					flex: '1.5',
-					'data-code': Keyboard.Codes.Enter,
+					'data-code': 'Enter',
 					'data-key': '↵'
 				};
 			}
@@ -27,7 +27,7 @@
 					display: 'Backspace',
 					backspace: true,
 					flex: '1.5',
-					'data-code': Keyboard.Codes.Backspace,
+					'data-code': 'Backspace',
 					'data-key': '←'
 				};
 			}

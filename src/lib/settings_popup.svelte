@@ -1,8 +1,15 @@
 <script lang="ts">
 	import { settingsStore } from '$lib/stores/settings_store';
 	import type { Guess, PlayerWord } from './types';
-	const { autoCopyResults, barColorTiles, crimsonFont, saveProgress, winConfetti, winSound } =
-		settingsStore;
+	const {
+		autoCopyResults,
+		barColorTiles,
+		crimsonFont,
+		hardMode,
+		saveProgress,
+		winConfetti,
+		winSound
+	} = settingsStore;
 	import { nextWord } from './stores/cache_store';
 
 	export let currentWord: PlayerWord;
@@ -89,6 +96,18 @@
 		</div>
 		<label for="auto-copy-results-input">Auto copy results</label>
 	</div>
+
+	<div class="input-div">
+		<div
+			id="hard-mode-input"
+			class="radio-input"
+			on:click|preventDefault={() => hardMode.update((v) => !v)}
+			class:selected={$hardMode}
+		>
+			<span class="material-symbols-outlined knob" class:selected={$hardMode}>circle</span>
+		</div>
+		<label for="hard-mode-input">Hard mode</label>
+	</div>
 </div>
 
 <button class="debug-button" on:click={printDebug}> 🤓 </button>
@@ -107,7 +126,7 @@
 		flex-direction: row;
 		flex-wrap: wrap;
 		flex-flow: wrap;
-		justify-content: space-evenly;
+		justify-content: flex-start;
 	}
 
 	.input-div {

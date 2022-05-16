@@ -9,6 +9,7 @@ class SettingsStore {
 	public crimsonFont: Writable<boolean> = writable(false);
 	public saveProgress: Writable<boolean> = writable(true);
 	public autoCopyResults: Writable<boolean> = writable(true);
+	public hardMode: Writable<boolean> = writable(false);
 
 	constructor() {
 		if (browser) {
@@ -18,6 +19,7 @@ class SettingsStore {
 			this.crimsonFont = getWritableBooleanFromStorage(localStorage, 'crimsonFont', false);
 			this.saveProgress = getWritableBooleanFromStorage(localStorage, 'saveProgress', true);
 			this.autoCopyResults = getWritableBooleanFromStorage(localStorage, 'autoCopyResults', true);
+			this.hardMode = getWritableBooleanFromStorage(localStorage, 'hardMode', false);
 
 			autoUpdateWritableStorage(localStorage, 'winConfetti', this.winConfetti);
 			autoUpdateWritableStorage(localStorage, 'winSound', this.winSound);
@@ -25,6 +27,7 @@ class SettingsStore {
 			autoUpdateWritableStorage(localStorage, 'crimsonFont', this.crimsonFont);
 			autoUpdateWritableStorage(localStorage, 'saveProgress', this.saveProgress);
 			autoUpdateWritableStorage(localStorage, 'autoCopyResults', this.autoCopyResults);
+			autoUpdateWritableStorage(localStorage, 'hardMode', this.hardMode);
 		}
 	}
 }

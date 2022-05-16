@@ -1,4 +1,4 @@
-import { db } from '$db/db';
+import { db } from '$lib/db';
 
 export async function get() {
 	const word = await db.getPreviousPlayerWord();

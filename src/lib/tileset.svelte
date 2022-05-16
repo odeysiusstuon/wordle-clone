@@ -1,48 +1,76 @@
 <script lang="ts">
-	import { toArray } from 'lodash';
+	import { type Guess, letterLength } from './types';
+	import TilesetRow from '$lib/tileset_row.svelte';
+	import { debounce } from 'lodash';
 
-	import Tile from './tile.svelte';
-	import { type Guess, LetterFeedback, letterLength } from './types';
-
-	export let numRows = 6;
 	export let numColumns = letterLength;
 
 	export let tileWidth: string = '60px';
-	export let tileHeight: string = '60px';
 
-	export let animationDuration: number;
+	export let animationDuration: number = 0;
+
+	// Makes tiles without feedback always show as
+	// tbd tiles (i.e., tiles with outlines), even
+	// when a "guess" is present for the tile.
+	// This is especially useful for static tiles, as
+	// is shown in the help popup.
+	export const alwaysShowTbdTiles: boolean = false;
 
 	export let guesses: Guess[];
+	export let currentNumAttempts: number;
+	export let currentGuessWord: string;
+	export let animating: boolean = false;
+	export let shakingAllowed: boolean = false;
 
-	let rootElement: HTMLDivElement;
-	$: {
-		if (rootElement) {
-			rootElement.style.setProperty('--num-rows', numRows.toString());
-			rootElement.style.setProperty('--num-columns', numColumns.toString());
-			rootElement.style.setProperty('--tile-width', tileWidth.toString());
-			rootElement.style.setProperty('--tile-height', tileHeight.toString());
-		}
-	}
+	export let animateFinishedRefresh: boolean = false;
 
-	$: console.log(guesses);
+	const shakeDuration = 500;
+
+	// I really don't like this solution for manually
+	// triggering the render :/
+	// https://stackoverflow.com/questions/59062025/is-there-a-way-to-perform-svelte-transition-without-a-if-block
+	let shakeKey = {};
+	export const shakeLatestRow = debounce(() => (shakeKey = {}), shakeDuration, {
+		leading: true,
+		trailing: false,
+		maxWait: shakeDuration
+	});
 </script>
 
-<div class="tileset" bind:this={rootElement}>
-	{#each guesses as guess}
-		{#if guess.guessed}
-			{#each toArray(guess.word) as letter, i (i)}
-				<Tile
-					{letter}
-					guessed={guess.guessed}
-					animationDelay={i * animationDuration}
+<div class="tileset">
+	{#each guesses as guess, rowIndex}
+		{#if rowIndex === currentNumAttempts && shakingAllowed}
+			{#key shakeKey}
+				<TilesetRow
+					{guess}
+					{rowIndex}
+					{numColumns}
 					{animationDuration}
-					letterFeedback={guess.feedback.hint.letters[i]}
+					{currentNumAttempts}
+					{currentGuessWord}
+					{animating}
+					{shakeDuration}
+					{animateFinishedRefresh}
+					shouldShake
+					alwaysShowTbdTiles
+					--num-columns={numColumns}
+					--tile-width={tileWidth}
 				/>
-			{/each}
+			{/key}
 		{:else}
-			{#each Array(numColumns) as _, i (i)}
-				<Tile letter="" letterFeedback={LetterFeedback.None} />
-			{/each}
+			<TilesetRow
+				{guess}
+				{rowIndex}
+				{numColumns}
+				{animationDuration}
+				{currentNumAttempts}
+				{currentGuessWord}
+				{animating}
+				{animateFinishedRefresh}
+				alwaysShowTbdTiles
+				--num-columns={numColumns}
+				--tile-width={tileWidth}
+			/>
 		{/if}
 	{/each}
 </div>
@@ -51,8 +79,7 @@
 	.tileset {
 		display: grid;
 		grid-template-rows: repeat(var(--num-rows), var(--tile-height));
-		grid-template-columns: repeat(var(--num-columns), var(--tile-width));
 		grid-auto-flow: row;
-		gap: 10px 10px;
+		gap: 0.5rem 0.5rem;
 	}
 </style>

@@ -26,8 +26,8 @@
 - A user can view instructions on how to play
 - A user can view information about the game in general
 - A user can switch between two modes of difficulty
-  - Easy mode (default): shows hints
-  - Hard mode: shows no hints
+  - Easy mode (default): User can input any guess (in the dictionary)
+  - Hard mode: Revealed hints must be used in subsequent guesses
 - A user can toggle between light theme and dark theme
   - Dark mode should be enabled by default if their OS settings has dark theme enabled
 - A user can toggle high contrast mode

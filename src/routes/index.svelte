@@ -193,6 +193,11 @@
 			return;
 		}
 
+		if (!(await wordExists())) {
+			addToast('Not in word list');
+			return;
+		}
+
 		const res = await fetch(`${validateUrl}?guess=${currentGuessWord}`);
 		const { feedback }: { feedback: GuessFeedback } = await res.json();
 		currentNumAttempts++;
@@ -258,6 +263,14 @@
 		}
 
 		await handleKeyPress(event.code, key);
+	}
+
+	async function wordExists() {
+		const res = await fetch(`/word/exists/${currentGuessWord}.json`);
+		if (res.ok) {
+			return (await res.json()).exists;
+		}
+		return false;
 	}
 
 	let animateFinishedRefresh = false;

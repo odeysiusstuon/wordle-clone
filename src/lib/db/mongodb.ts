@@ -121,4 +121,14 @@ export class MongoDB implements IDatabase {
 			} as Word;
 		});
 	}
+
+	async wordExists(word: string) {
+		const connection = await this.client;
+		const db = connection.db();
+		const collection = db.collection('words');
+		const foundWord = await collection.findOne({
+			word
+		});
+		return foundWord !== null;
+	}
 }

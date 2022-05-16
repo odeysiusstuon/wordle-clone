@@ -266,8 +266,6 @@
 			animateFinishedRefresh = true;
 		}
 	});
-
-	$: console.log(playWinAnimation);
 </script>
 
 <svelte:head>

@@ -1,5 +1,3 @@
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-export const env = process.env;
+export const variables = {
+	home_uri: import.meta.env.VITE_HOME_URI
+};

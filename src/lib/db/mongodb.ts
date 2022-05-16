@@ -4,17 +4,14 @@ import type { MongoClient, WithId } from 'mongodb';
 
 type WordDocument = WithId<Document> & Omit<Word, 'wordId'>;
 
-const wordCacheLimit = 2;
-
 export class MongoDB implements IDatabase {
 	client: Promise<MongoClient>;
-	wordCache: WordDocument[] = [];
 
 	constructor(client: Promise<MongoClient>) {
 		this.client = client;
 	}
 
-	private async fetchCache() {
+	async getLatestWord(): Promise<Word> {
 		const connection = await this.client;
 		const db = connection.db();
 		const collection = db.collection('words');
@@ -25,35 +22,8 @@ export class MongoDB implements IDatabase {
 			.sort({ date: 1 })
 			.toArray()) as WordDocument[];
 
-		this.wordCache = words.slice(0, wordCacheLimit);
-	}
-
-	private async updateCache() {
-		if (this.wordCache.length > 0) {
-			if (this.wordCache.length === 1) {
-				await this.fetchCache();
-			} else {
-				const nextWord = this.wordCache[1];
-				const now = moment.utc();
-				const nextWordDate = moment(nextWord.date).utc();
-				if (now >= nextWordDate) {
-					await this.fetchCache();
-				}
-			}
-		} else {
-			await this.fetchCache();
-		}
-	}
-
-	private async getWordNumber(words: WordDocument[], searchWord: WordDocument) {
-		return words.findIndex((w) => w._id === searchWord._id) + 1;
-	}
-
-	async getLatestWord(): Promise<Word> {
-		await this.updateCache();
-
-		if (this.wordCache.length > 0) {
-			const word = this.wordCache[0];
+		if (words.length > 0) {
+			const word = words[0];
 			return {
 				wordId: word._id.toHexString(),
 				num: word.num,
@@ -80,10 +50,18 @@ export class MongoDB implements IDatabase {
 	}
 
 	async getNextPlayerWord(): Promise<PlayerWord> {
-		await this.updateCache();
+		const connection = await this.client;
+		const db = connection.db();
+		const collection = db.collection('words');
+		const words = (await collection
+			.find({
+				date: { $gte: moment.utc().startOf('day').subtract(1, 'day').toDate() }
+			})
+			.sort({ date: 1 })
+			.toArray()) as WordDocument[];
 
-		if (this.wordCache.length > 1) {
-			const word = this.wordCache[1];
+		if (words.length > 0) {
+			const word = words[1];
 			return {
 				wordId: word._id.toHexString(),
 				num: word.num,

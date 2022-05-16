@@ -1,26 +1,26 @@
 import type { IDatabase } from '$lib/types';
 import { MongoClient } from 'mongodb';
 import { MongoDB } from './mongodb';
-import { env } from '$lib/env';
+import dotenv from 'dotenv';
 
-const uri = env.MONGODB_URI;
+dotenv.config();
 
-if (!uri) {
+if (!process.env.MONGODB_URI) {
 	throw new Error('Could not find URI');
 }
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-if (env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development') {
 	if (!global._mongoClientPromise) {
-		client = new MongoClient(uri);
+		client = new MongoClient(process.env.MONGODB_URI);
 		global._mongoClientPromise = client.connect();
 	}
 
 	clientPromise = global._mongoClientPromise;
 } else {
-	client = new MongoClient(uri);
+	client = new MongoClient(process.env.MONGODB_URI);
 	clientPromise = client.connect();
 }
 

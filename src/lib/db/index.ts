@@ -1,11 +1,11 @@
 import type { IDatabase } from '$lib/types';
 import { MongoClient } from 'mongodb';
 import { MongoDB } from './mongodb';
-import { variables } from '$lib/env';
+import dotenv from 'dotenv';
 
-const uri = variables.uri;
+dotenv.config();
 
-if (!uri) {
+if (!process.env.uri) {
 	throw new Error('Could not find URI');
 }
 
@@ -14,13 +14,13 @@ let clientPromise: Promise<MongoClient>;
 
 if (process.env.NODE_ENV === 'development') {
 	if (!global._mongoClientPromise) {
-		client = new MongoClient(uri);
+		client = new MongoClient(process.env.uri);
 		global._mongoClientPromise = client.connect();
 	}
 
 	clientPromise = global._mongoClientPromise;
 } else {
-	client = new MongoClient(uri);
+	client = new MongoClient(process.env.uri);
 	clientPromise = client.connect();
 }
 

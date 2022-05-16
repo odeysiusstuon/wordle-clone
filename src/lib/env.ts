@@ -1,3 +1,3 @@
 export const variables = {
-	uri: import.meta.env.MONGODB_URI
+	home_uri: import.meta.env.VITE_HOME_URI
 };

@@ -82,6 +82,7 @@
 	import StatisticsPopup from '$lib/statistics_popup.svelte';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/env';
+	import { variables } from '$lib/env';
 
 	const helpModal = writable(null);
 	const showHelpModal = () => helpModal.set(bind(HelpPopup, {}));
@@ -282,7 +283,7 @@
 
 	<div class="header">
 		<div class="header-buttons-left">
-			<a class="home" href="https://thebar.world/">
+			<a class="home" href={variables.home_uri}>
 				<span class="material-symbols-outlined"> home </span>
 			</a>
 

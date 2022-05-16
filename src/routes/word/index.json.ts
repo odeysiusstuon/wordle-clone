@@ -1,11 +1,13 @@
 import { db } from '$lib/db';
-import { variables } from '$lib/env';
 import { MongoClient } from 'mongodb';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export async function get() {
 	console.log(db);
-	console.log(variables.uri);
-	const client = new MongoClient(variables.uri);
+	console.log(process.env.uri);
+	const client = new MongoClient(process.env.uri);
 	const clientPromise = client.connect();
 	console.log(clientPromise);
 	const word = await db.getLatestPlayerWord();

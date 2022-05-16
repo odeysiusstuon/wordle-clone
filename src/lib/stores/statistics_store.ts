@@ -1,8 +1,9 @@
 import type { Guess, PlayerStatistics, PlayerWord } from '$lib/types';
+import moment from 'moment';
 import { get } from 'svelte/store';
 import { settingsStore } from './settings_store';
 
-class StatisticsStore {
+export class StatisticsStore {
 	private playerStatistics: PlayerStatistics;
 
 	constructor() {
@@ -20,6 +21,7 @@ class StatisticsStore {
 	}
 
 	savePlayerStatistics() {
+		this.playerStatistics.totalPlays = Object.keys(this.playerStatistics.days).length;
 		localStorage.setItem('playerStatistics', JSON.stringify(this.playerStatistics));
 	}
 
@@ -49,7 +51,9 @@ class StatisticsStore {
 	}
 
 	addDay(word: PlayerWord) {
+		const now = moment.utc();
 		this.playerStatistics.days[word.wordId] = {
+			startedTimestampMs: now.valueOf(),
 			word,
 			guessList: []
 		};
@@ -58,6 +62,46 @@ class StatisticsStore {
 	addDayIfNotPresent(word: PlayerWord) {
 		if (this.hasDay(word)) return;
 		this.addDay(word);
+	}
+
+	addWin() {
+		this.playerStatistics.totalWins++;
+		this.playerStatistics.currentStreak++;
+		if (this.playerStatistics.maxStreak < this.playerStatistics.currentStreak) {
+			this.playerStatistics.maxStreak = this.playerStatistics.currentStreak;
+		}
+	}
+
+	getAmountNthDegree(degree: number) {
+		return Object.keys(this.playerStatistics.days).filter((wordId) => {
+			const guess = this.playerStatistics.days[wordId];
+			return (
+				guess.guessList.some((g) => g.guessed && g.feedback.correct) &&
+				guess.guessList.filter((g) => g.guessed).length === degree
+			);
+		}).length;
+	}
+
+	getCurrentTimeSpentMs(currentWord: PlayerWord) {
+		if (!(currentWord.wordId in this.playerStatistics.days)) return null;
+		const day = this.playerStatistics.days[currentWord.wordId];
+		return moment.utc().valueOf() - day.startedTimestampMs;
+	}
+
+	getTotalPlays() {
+		return this.playerStatistics.totalPlays;
+	}
+
+	getTotalWins() {
+		return this.playerStatistics.totalWins;
+	}
+
+	getCurrentStreak() {
+		return this.playerStatistics.currentStreak;
+	}
+
+	getMaxStreak() {
+		return this.playerStatistics.maxStreak;
 	}
 
 	public get getStatistics(): PlayerStatistics {

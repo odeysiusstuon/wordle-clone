@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
 	export async function load({ fetch }) {
-		const url = '/word.json';
+		const url = latestUrl;
 		const res = await fetch(url);
 
 		if (res.ok) {
@@ -54,7 +54,7 @@
 	import '../styles/global.css';
 
 	import { settingsStore } from '$lib/stores/settings_store';
-	const { saveProgress, winConfetti, winSound } = settingsStore;
+	const { autoCopyResults, saveProgress, winConfetti, winSound } = settingsStore;
 
 	import { statisticsStore } from '$lib/stores/statistics_store';
 
@@ -65,21 +65,36 @@
 		type GuessFeedback,
 		letterLength,
 		type PlayerWord,
-		maxGuesses
+		maxGuesses,
+		validateUrl,
+		latestUrl
 	} from '$lib/types';
-	import { keyToCharacter } from '$lib/utils';
+	import { copyGuessesToClipboard, keyToCharacter } from '$lib/utils';
 	import Toaster from '$lib/toaster.svelte';
 	import HelpPopup from '$lib/help_popup.svelte';
 	import SettingsPopup from '$lib/settings_popup.svelte';
+	import StatisticsPopup from '$lib/statistics_popup.svelte';
+	import moment from 'moment';
 
 	const helpModal = writable(null);
 	const showHelpModal = () => helpModal.set(bind(HelpPopup, {}));
 	const settingsModal = writable(null);
 	const showSettingsModal = () => settingsModal.set(bind(SettingsPopup, {}));
+	const statisticsModal = writable(null);
+	const showStatisticsModal = (
+		showShareButton: boolean = false,
+		showNextWordTime: boolean = true
+	) =>
+		statisticsModal.set(
+			bind(StatisticsPopup, {
+				currentWord: word,
+				showShareButton,
+				showNextWordTime,
+				addToast
+			})
+		);
 
 	const modalWindowStyle = { backgroundColor: '#222', color: '#fff', textAlign: 'left' };
-
-	const validateUrl = '/word/validate.json';
 
 	export let word: PlayerWord;
 
@@ -93,6 +108,7 @@
 	$: latestGuess = guesses[currentNumAttempts - 1] || null;
 
 	let animating: boolean = false;
+	let timeSpent = moment.duration(statisticsStore.getCurrentTimeSpentMs(word));
 
 	let hasWon: boolean = false;
 	$: hasWon = latestGuess && latestGuess.guessed && latestGuess.feedback.correct;
@@ -124,6 +140,15 @@
 				await winAudio.play();
 			}
 		}
+
+		statisticsStore.addWin();
+		statisticsStore.savePlayerStatistics();
+
+		if ($autoCopyResults) {
+			copyGuessesToClipboard(statisticsStore, word);
+		}
+
+		showStatisticsModal(true);
 
 		if ($winConfetti) {
 			setTimeout(() => (playWinAnimation = false), 5 * 1000);
@@ -218,7 +243,9 @@
 		href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
 	/>
 </svelte:head>
+
 <svelte:window on:keydown={onKeyPress} />
+
 <div class="main" class:win={playWinAnimation}>
 	<audio id="win-audio" src="win_sfx.mp3" />
 	<div class="header">
@@ -236,9 +263,11 @@
 			<h1>BARdle</h1>
 		</div>
 		<div class="header-buttons-right">
-			<button class="statistics">
-				<span class="material-symbols-outlined"> leaderboard </span>
-			</button>
+			<Modal show={$statisticsModal} styleWindow={modalWindowStyle}>
+				<button class="statistics" on:click={() => showStatisticsModal()}>
+					<span class="material-symbols-outlined"> leaderboard </span>
+				</button>
+			</Modal>
 			<Modal show={$settingsModal} styleWindow={modalWindowStyle}>
 				<button class="settings" on:click={showSettingsModal}>
 					<span class="material-symbols-outlined"> settings </span>
@@ -247,7 +276,7 @@
 		</div>
 	</div>
 	<div class="container">
-		wordId: {word.wordId}, date: {word.date}
+		wordId: {word.wordId}, date: {word.date}, time spent: {timeSpent.humanize()}
 
 		<br />
 
@@ -341,7 +370,7 @@
 	}
 
 	.toaster {
-		z-index: 1;
+		z-index: 1001;
 	}
 
 	.header-buttons-left,

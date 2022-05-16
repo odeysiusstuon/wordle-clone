@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css?family=Crimson Pro');
-
 html {
 	box-sizing: border-box;
 	overflow: hidden;
@@ -10,7 +8,7 @@ body {
 	background-color: #000000;
 	color: #cccccc;
 	height: 100vh;
-	font-family: 'Crimson Pro';
+	font-family: var(--crimson-font-family);
 }
 
 .material-symbols-outlined {

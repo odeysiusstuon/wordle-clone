@@ -69,7 +69,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+		font-family: var(--tile-font-family);
 		font-size: 2rem;
 		text-transform: uppercase;
 		user-select: none;

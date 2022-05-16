@@ -1,8 +1,10 @@
 import type { IDatabase, PlayerWord, Word } from '$lib/types';
 import moment from 'moment';
-import type { MongoClient, WithId } from 'mongodb';
+import type { Collection, MongoClient, WithId } from 'mongodb';
 
 type WordDocument = WithId<Document> & Omit<Word, 'wordId'>;
+
+const wordCacheLimit = 2;
 
 export class MongoDB implements IDatabase {
 	client: Promise<MongoClient>;
@@ -16,14 +18,18 @@ export class MongoDB implements IDatabase {
 		const connection = await this.client;
 		const db = connection.db();
 		const collection = db.collection('words');
-		const words = await collection
+		const words = (await collection
 			.find({
 				date: { $gte: moment.utc().startOf('day').toDate() }
 			})
 			.sort({ date: 1 })
-			.limit(2)
-			.toArray();
-		this.wordCache = words as WordDocument[];
+			.toArray()) as WordDocument[];
+
+		for (let i = 0; i < wordCacheLimit; i++) {
+			words[i].num = await this.getWordNumber(words, words[i]);
+		}
+
+		this.wordCache = words.slice(0, wordCacheLimit);
 	}
 
 	private async updateCache() {
@@ -43,6 +49,10 @@ export class MongoDB implements IDatabase {
 		}
 	}
 
+	private async getWordNumber(words: WordDocument[], searchWord: WordDocument) {
+		return words.findIndex((w) => w._id === searchWord._id) + 1;
+	}
+
 	async getLatestWord(): Promise<Word> {
 		await this.updateCache();
 
@@ -50,6 +60,7 @@ export class MongoDB implements IDatabase {
 			const word = this.wordCache[0];
 			return {
 				wordId: word._id.toHexString(),
+				num: word.num,
 				word: word.word,
 				date: word.date,
 				desc: word.desc
@@ -64,6 +75,22 @@ export class MongoDB implements IDatabase {
 		if (word) {
 			return {
 				wordId: word.wordId,
+				num: word.num,
+				date: word.date
+			};
+		} else {
+			return null;
+		}
+	}
+
+	async getNextPlayerWord(): Promise<PlayerWord> {
+		await this.updateCache();
+
+		if (this.wordCache.length > 1) {
+			const word = this.wordCache[1];
+			return {
+				wordId: word._id.toHexString(),
+				num: word.num,
 				date: word.date
 			};
 		} else {
@@ -85,6 +112,7 @@ export class MongoDB implements IDatabase {
 		return words.map((w) => {
 			return {
 				wordId: w._id.toHexString(),
+				num: w.num,
 				word: w.word,
 				date: w.date,
 				desc: w.desc

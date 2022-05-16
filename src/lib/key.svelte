@@ -27,7 +27,7 @@
 		outline: none;
 		justify-content: center;
 		align-items: center;
-		font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+		font-family: var(--tile-font-family);
 		font-size: var(--font-size);
 		font-weight: bold;
 		text-transform: uppercase;

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { settingsStore } from '$lib/stores/settings_store';
-	const { barColorTiles, saveProgress, winConfetti, winSound } = settingsStore;
+	const { autoCopyResults, barColorTiles, crimsonFont, saveProgress, winConfetti, winSound } =
+		settingsStore;
 </script>
 
 <h1>Settings</h1>
@@ -43,6 +44,18 @@
 
 <div class="input-div">
 	<div
+		id="crimson-font-tiles-input"
+		class="radio-input"
+		on:click|preventDefault={() => crimsonFont.update((v) => !v)}
+		class:selected={$crimsonFont}
+	>
+		<span class="material-symbols-outlined knob" class:selected={$crimsonFont}>circle</span>
+	</div>
+	<label for="crimson-font-tiles-input">Use crimson font</label>
+</div>
+
+<div class="input-div">
+	<div
 		id="save-progress-input"
 		class="radio-input"
 		on:click|preventDefault={() => saveProgress.update((v) => !v)}
@@ -53,7 +66,23 @@
 	<label for="save-progress-input">Save progress</label>
 </div>
 
+<div class="input-div">
+	<div
+		id="auto-copy-results-input"
+		class="radio-input"
+		on:click|preventDefault={() => autoCopyResults.update((v) => !v)}
+		class:selected={$autoCopyResults}
+	>
+		<span class="material-symbols-outlined knob" class:selected={$autoCopyResults}>circle</span>
+	</div>
+	<label for="auto-copy-results-input">Auto copy results</label>
+</div>
+
 <style>
+	h1 {
+		margin: 0 0 20px 0;
+	}
+
 	.material-symbols-outlined {
 		font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
 	}

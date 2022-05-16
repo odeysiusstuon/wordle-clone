@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css?family=Crimson Pro');
+
+:root {
+	--crimson-font-family: 'Crimson Pro';
+	--wordle-font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+
+	--default-font-family: var(--crimson-font-family);
+	--tile-font-family: var(--crimson-font-family);
+}

@@ -145,8 +145,6 @@
 	let playWinAnimation: boolean = false;
 	async function onFinish(won: boolean) {
 		if (won) {
-			playWinAnimation =
-				$winConfetti && latestGuess && latestGuess.guessed && latestGuess.feedback.correct;
 			addToast('Splendid');
 
 			if ($winSound) {
@@ -162,6 +160,7 @@
 			}
 
 			if ($winConfetti) {
+				playWinAnimation = true;
 				setTimeout(() => (playWinAnimation = false), 5 * 1000);
 			}
 		} else {
@@ -267,6 +266,8 @@
 			animateFinishedRefresh = true;
 		}
 	});
+
+	$: console.log(playWinAnimation);
 </script>
 
 <svelte:head>
@@ -279,7 +280,7 @@
 <svelte:window on:keydown={onKeyPress} />
 
 <div class="main" class:win={playWinAnimation}>
-	<audio id="win-audio" src="win_sfx.mp3" />
+	<audio id="win-audio" src="/win_sfx.mp3" />
 
 	<div class="header">
 		<div class="header-buttons-left">
@@ -318,7 +319,7 @@
 			<div class="tileset">
 				<h1>Could not load today's word</h1>
 				<h2>Try refreshing</h2>
-				<img src="the-bar-logo-v2-medium.png" alt="The BAR Logo" draggable="false" />
+				<img src="/the-bar-logo-v2-medium.png" alt="The BAR Logo" draggable="false" />
 			</div>
 		</div>
 	{:else}
@@ -370,7 +371,7 @@
 		content: '';
 		width: 100%;
 		height: 100%;
-		background: url('win_confetti.gif');
+		background: url('/win_confetti.gif');
 		background-repeat: repeat;
 		transition: opacity 1s;
 		pointer-events: none;

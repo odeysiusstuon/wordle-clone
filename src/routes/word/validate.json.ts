@@ -1,7 +1,8 @@
 import { db } from '$db/db';
 import { LetterFeedback, type GuessFeedback, type Hint } from '$lib/types';
 import type { Dictionary } from 'lodash';
-import countBy from 'lodash/countBy';
+import lodash from 'lodash';
+const { countBy } = lodash;
 
 type LetterCount = Dictionary<number>;
 

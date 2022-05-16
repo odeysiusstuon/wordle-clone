@@ -131,11 +131,21 @@
 		(latestGuess && latestGuess.guessed && latestGuess.feedback.correct) ||
 		currentNumAttempts >= maxGuesses;
 
+	const guessCooldown = 2 * 1000;
+	let currentGuessCooldownClock: number = null;
+	let countdownInterval: NodeJS.Timer;
 	let canGuess: boolean = true;
 	$: canGuess =
 		currentNumAttempts < maxGuesses &&
 		(!latestGuess || !latestGuess.guessed || !hasFinished) &&
-		!animating;
+		!animating &&
+		(!currentGuessCooldownClock || currentGuessCooldownClock <= 0);
+
+	$: {
+		if (countdownInterval && currentGuessCooldownClock !== null && currentGuessCooldownClock <= 0) {
+			clearTimeout(countdownInterval);
+		}
+	}
 
 	let toasts: string[] = [];
 
@@ -221,6 +231,9 @@
 
 	async function makeGuess() {
 		if (!canGuess) return;
+
+		currentGuessCooldownClock = guessCooldown;
+		countdownInterval = setInterval(() => (currentGuessCooldownClock -= 1 * 1000), 1 * 1000);
 
 		if (currentGuessWord.length !== letterLength) {
 			onInsufficientInput();

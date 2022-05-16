@@ -333,6 +333,12 @@
 		rel="stylesheet"
 		href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
 	/>
+	<title>BARdle</title>
+	<meta content="BARdle" property="og:title" />
+	<meta content="Wordle but The BAR" property="og:description" />
+	<meta content="https://bardle.thebar.world" property="og:url" />
+	<meta content="/bardle_logo.png" property="og:image" />
+	<meta content="#4d4dff" data-react-helmet="true" name="theme-color" />
 </svelte:head>
 
 <svelte:window on:keydown={onKeyPress} />

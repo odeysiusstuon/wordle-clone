@@ -2,7 +2,6 @@ import type { Keyboard } from '@etsoo/shared';
 import { writable, type Writable } from 'svelte/store';
 import { emojiMappings, maxGuesses, type Guess, type PlayerWord } from './types';
 import type { StatisticsStore } from '$lib/stores/statistics_store';
-import { flowRight } from 'lodash';
 
 export function keyToCharacter(key: Keyboard.Codes) {
 	return key[3].toLowerCase();

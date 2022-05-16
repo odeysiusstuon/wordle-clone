@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { type Guess, letterLength } from './types';
 	import TilesetRow from '$lib/tileset_row.svelte';
-	import { debounce } from 'lodash';
+	import lodash from 'lodash';
+	const { debounce } = lodash;
 
 	export let numColumns = letterLength;
 

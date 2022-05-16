@@ -6,25 +6,28 @@
 		if (res.ok) {
 			const { word } = await res.json();
 
-			statisticsStore.addDayIfNotPresent(word);
-			let guesses = statisticsStore.getGuesses(word);
+			let guesses: Guess[] = [];
 			let currentNumAttempts = 0;
+			if (browser) {
+				statisticsStore.addDayIfNotPresent(word);
+				guesses = statisticsStore.getGuesses(word);
 
-			if (guesses === null || guesses.length === 0) {
-				guesses = new Array(maxGuesses).fill({
-					guessed: false
-				});
-				guesses.forEach((g, i) => statisticsStore.setGuess(word, i, g));
-			} else {
-				if (guesses !== null) {
-					let latestGuess: Guess;
-					for (const guess of guesses) {
-						if (guess.guessed) {
-							latestGuess = guess;
+				if (guesses === null || guesses.length === 0) {
+					guesses = new Array(maxGuesses).fill({
+						guessed: false
+					});
+					guesses.forEach((g, i) => statisticsStore.setGuess(word, i, g));
+				} else {
+					if (guesses !== null) {
+						let latestGuess: Guess;
+						for (const guess of guesses) {
+							if (guess.guessed) {
+								latestGuess = guess;
+							}
 						}
-					}
-					if (latestGuess && latestGuess.guessed) {
-						currentNumAttempts = latestGuess.attemptNum;
+						if (latestGuess && latestGuess.guessed) {
+							currentNumAttempts = latestGuess.attemptNum;
+						}
 					}
 				}
 			}
@@ -51,7 +54,6 @@
 </script>
 
 <script lang="ts">
-	import { Keyboard as KeyboardEnums } from '@etsoo/shared';
 	import Modal, { bind } from 'svelte-simple-modal';
 	import { writable } from 'svelte/store';
 
@@ -79,6 +81,7 @@
 	import SettingsPopup from '$lib/settings_popup.svelte';
 	import StatisticsPopup from '$lib/statistics_popup.svelte';
 	import { onMount } from 'svelte';
+	import { browser } from '$app/env';
 
 	const helpModal = writable(null);
 	const showHelpModal = () => helpModal.set(bind(HelpPopup, {}));
@@ -142,8 +145,6 @@
 	let playWinAnimation: boolean = false;
 	async function onFinish(won: boolean) {
 		if (won) {
-			playWinAnimation =
-				$winConfetti && latestGuess && latestGuess.guessed && latestGuess.feedback.correct;
 			addToast('Splendid');
 
 			if ($winSound) {
@@ -153,14 +154,19 @@
 				}
 			}
 
-			await statisticsStore.addWin();
-			statisticsStore.savePlayerStatistics();
+			if (browser) {
+				await statisticsStore.addWin();
+				statisticsStore.savePlayerStatistics();
+			}
 
 			if ($winConfetti) {
+				playWinAnimation = true;
 				setTimeout(() => (playWinAnimation = false), 5 * 1000);
 			}
 		} else {
-			statisticsStore.addLoss();
+			if (browser) {
+				statisticsStore.addLoss();
+			}
 		}
 
 		if ($autoCopyResults) {
@@ -198,7 +204,7 @@
 		currentGuessWord = '';
 		guesses[currentNumAttempts - 1] = guess;
 
-		if ($saveProgress) {
+		if (browser && $saveProgress) {
 			statisticsStore.addDayIfNotPresent(word);
 			statisticsStore.setGuess(word, currentNumAttempts - 1, guess);
 			statisticsStore.savePlayerStatistics();
@@ -216,16 +222,16 @@
 
 	const keyboardMap = 'qwertyuiop\nasdfghjkl\n↵zxcvbnm←';
 
-	async function handleKeyPress(code: KeyboardEnums.Codes, character: string = undefined) {
+	async function handleKeyPress(code: string, character: string = undefined) {
 		if (!canGuess) return;
 		if (!(keyboardMap.indexOf(character) !== -1)) return;
 
 		switch (code) {
-			case KeyboardEnums.Codes.Enter:
-			case 'NumpadEnter' as KeyboardEnums.Codes:
+			case 'Enter':
+			case 'NumpadEnter':
 				await makeGuess();
 				break;
-			case KeyboardEnums.Codes.Backspace:
+			case 'Backspace':
 				if (currentGuessWord.length > 0) {
 					currentGuessWord = currentGuessWord.slice(0, -1);
 				}
@@ -244,13 +250,13 @@
 
 	async function onKeyPress(event: KeyboardEvent) {
 		let key = event.key;
-		if (key === KeyboardEnums.Keys.Enter) {
+		if (key === 'Enter') {
 			key = '↵';
-		} else if (key === KeyboardEnums.Keys.Backspace) {
+		} else if (key === 'Backspace') {
 			key = '←';
 		}
 
-		await handleKeyPress(event.code as KeyboardEnums.Codes, key);
+		await handleKeyPress(event.code, key);
 	}
 
 	let animateFinishedRefresh = false;
@@ -272,7 +278,7 @@
 <svelte:window on:keydown={onKeyPress} />
 
 <div class="main" class:win={playWinAnimation}>
-	<audio id="win-audio" src="win_sfx.mp3" />
+	<audio id="win-audio" src="/win_sfx.mp3" />
 
 	<div class="header">
 		<div class="header-buttons-left">
@@ -311,7 +317,7 @@
 			<div class="tileset">
 				<h1>Could not load today's word</h1>
 				<h2>Try refreshing</h2>
-				<img src="the-bar-logo-v2-medium.png" alt="The BAR Logo" draggable="false" />
+				<img src="/the-bar-logo-v2-medium.png" alt="The BAR Logo" draggable="false" />
 			</div>
 		</div>
 	{:else}
@@ -363,7 +369,7 @@
 		content: '';
 		width: 100%;
 		height: 100%;
-		background: url('win_confetti.gif');
+		background: url('/win_confetti.gif');
 		background-repeat: repeat;
 		transition: opacity 1s;
 		pointer-events: none;

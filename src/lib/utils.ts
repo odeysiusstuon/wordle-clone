@@ -1,14 +1,14 @@
-import type { Keyboard } from '@etsoo/shared';
 import { writable, type Writable } from 'svelte/store';
 import { emojiMappings, maxGuesses, type Guess, type PlayerWord } from './types';
 import type { StatisticsStore } from '$lib/stores/statistics_store';
+import { browser } from '$app/env';
 
-export function keyToCharacter(key: Keyboard.Codes) {
+export function keyToCharacter(key: string) {
 	return key[3].toLowerCase();
 }
 
-export function characterToKey(character: string): Keyboard.Keys {
-	return `Key${character.toUpperCase()}` as Keyboard.Keys;
+export function characterToKey(character: string): string {
+	return `Key${character.toUpperCase()}`;
 }
 
 export function guessListToEmojis(guesses: Guess[]) {
@@ -28,6 +28,7 @@ export function copyGuessesToClipboard(
 	currentWord: PlayerWord,
 	addToast: (message: string) => void = undefined
 ) {
+	if (!browser) return;
 	const guesses = statisticsStore.getGuesses(currentWord);
 	const guessesEmojis = guessListToEmojis(guesses);
 

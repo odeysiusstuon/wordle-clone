@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { toArray } from 'lodash';
+	import lodash from 'lodash';
+	const { toArray } = lodash;
 
 	import Tile from './tile.svelte';
 	import { type Guess, LetterFeedback, letterLength, type TransitionProps } from './types';

@@ -17,76 +17,78 @@
 
 <h1>Settings</h1>
 
-<div class="input-div">
-	<div
-		id="win-confetti-input"
-		class="radio-input"
-		on:click|preventDefault={() => winConfetti.update((v) => !v)}
-		class:selected={$winConfetti}
-	>
-		<span class="material-symbols-outlined knob" class:selected={$winConfetti}>circle</span>
+<div class="inputs">
+	<div class="input-div">
+		<div
+			id="win-confetti-input"
+			class="radio-input"
+			on:click|preventDefault={() => winConfetti.update((v) => !v)}
+			class:selected={$winConfetti}
+		>
+			<span class="material-symbols-outlined knob" class:selected={$winConfetti}>circle</span>
+		</div>
+		<label for="win-confetti-input">Show win confetti</label>
 	</div>
-	<label for="win-confetti-input">Show win confetti</label>
-</div>
 
-<div class="input-div">
-	<div
-		id="win-sound-input"
-		class="radio-input"
-		on:click|preventDefault={() => winSound.update((v) => !v)}
-		class:selected={$winSound}
-	>
-		<span class="material-symbols-outlined knob" class:selected={$winSound}>circle</span>
+	<div class="input-div">
+		<div
+			id="win-sound-input"
+			class="radio-input"
+			on:click|preventDefault={() => winSound.update((v) => !v)}
+			class:selected={$winSound}
+		>
+			<span class="material-symbols-outlined knob" class:selected={$winSound}>circle</span>
+		</div>
+		<label for="win-sound-input">Play win sound</label>
 	</div>
-	<label for="win-sound-input">Play win sound</label>
-</div>
 
-<div class="input-div">
-	<div
-		id="bar-color-tiles-input"
-		class="radio-input"
-		on:click|preventDefault={() => barColorTiles.update((v) => !v)}
-		class:selected={$barColorTiles}
-	>
-		<span class="material-symbols-outlined knob" class:selected={$barColorTiles}>circle</span>
+	<div class="input-div">
+		<div
+			id="bar-color-tiles-input"
+			class="radio-input"
+			on:click|preventDefault={() => barColorTiles.update((v) => !v)}
+			class:selected={$barColorTiles}
+		>
+			<span class="material-symbols-outlined knob" class:selected={$barColorTiles}>circle</span>
+		</div>
+		<label for="bar-color-tiles-input">Use BAR colors</label>
 	</div>
-	<label for="bar-color-tiles-input">Use BAR colors</label>
-</div>
 
-<div class="input-div">
-	<div
-		id="crimson-font-tiles-input"
-		class="radio-input"
-		on:click|preventDefault={() => crimsonFont.update((v) => !v)}
-		class:selected={$crimsonFont}
-	>
-		<span class="material-symbols-outlined knob" class:selected={$crimsonFont}>circle</span>
+	<div class="input-div">
+		<div
+			id="crimson-font-tiles-input"
+			class="radio-input"
+			on:click|preventDefault={() => crimsonFont.update((v) => !v)}
+			class:selected={$crimsonFont}
+		>
+			<span class="material-symbols-outlined knob" class:selected={$crimsonFont}>circle</span>
+		</div>
+		<label for="crimson-font-tiles-input">Use crimson font</label>
 	</div>
-	<label for="crimson-font-tiles-input">Use crimson font</label>
-</div>
 
-<div class="input-div">
-	<div
-		id="save-progress-input"
-		class="radio-input"
-		on:click|preventDefault={() => saveProgress.update((v) => !v)}
-		class:selected={$saveProgress}
-	>
-		<span class="material-symbols-outlined knob" class:selected={$saveProgress}>circle</span>
+	<div class="input-div">
+		<div
+			id="save-progress-input"
+			class="radio-input"
+			on:click|preventDefault={() => saveProgress.update((v) => !v)}
+			class:selected={$saveProgress}
+		>
+			<span class="material-symbols-outlined knob" class:selected={$saveProgress}>circle</span>
+		</div>
+		<label for="save-progress-input">Save progress</label>
 	</div>
-	<label for="save-progress-input">Save progress</label>
-</div>
 
-<div class="input-div">
-	<div
-		id="auto-copy-results-input"
-		class="radio-input"
-		on:click|preventDefault={() => autoCopyResults.update((v) => !v)}
-		class:selected={$autoCopyResults}
-	>
-		<span class="material-symbols-outlined knob" class:selected={$autoCopyResults}>circle</span>
+	<div class="input-div">
+		<div
+			id="auto-copy-results-input"
+			class="radio-input"
+			on:click|preventDefault={() => autoCopyResults.update((v) => !v)}
+			class:selected={$autoCopyResults}
+		>
+			<span class="material-symbols-outlined knob" class:selected={$autoCopyResults}>circle</span>
+		</div>
+		<label for="auto-copy-results-input">Auto copy results</label>
 	</div>
-	<label for="auto-copy-results-input">Auto copy results</label>
 </div>
 
 <button class="debug-button" on:click={printDebug}> 🤓 </button>
@@ -100,11 +102,20 @@
 		font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
 	}
 
+	.inputs {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		flex-flow: wrap;
+		justify-content: space-evenly;
+	}
+
 	.input-div {
 		display: flex;
 		align-items: center;
 		font-size: 20px;
 		margin: 10px;
+		flex-basis: 40%;
 	}
 
 	.radio-input {

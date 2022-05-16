@@ -73,10 +73,10 @@ export class StatisticsStore {
 		return previousDay.guessList.some((g) => g.guessed && g.feedback.correct);
 	}
 
-	addWin() {
+	async addWin() {
 		this.playerStatistics.totalWins++;
 
-		if (this.wonPreviousDay()) {
+		if (await this.wonPreviousDay()) {
 			this.playerStatistics.currentStreak++;
 		} else {
 			this.playerStatistics.currentStreak = 1;

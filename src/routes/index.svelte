@@ -153,7 +153,7 @@
 				}
 			}
 
-			statisticsStore.addWin();
+			await statisticsStore.addWin();
 			statisticsStore.savePlayerStatistics();
 
 			if ($winConfetti) {

@@ -1,4 +1,4 @@
-import { db } from '$db/db';
+import { db } from '$lib/db';
 import { LetterFeedback, type GuessFeedback, type Hint } from '$lib/types';
 import type { Dictionary } from 'lodash';
 import lodash from 'lodash';

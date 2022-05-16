@@ -1,7 +1,18 @@
 <script lang="ts">
 	import { settingsStore } from '$lib/stores/settings_store';
+	import type { Guess, PlayerWord } from './types';
 	const { autoCopyResults, barColorTiles, crimsonFont, saveProgress, winConfetti, winSound } =
 		settingsStore;
+	import { nextWord } from './stores/cache_store';
+
+	export let currentWord: PlayerWord;
+	export let guesses: Guess[];
+
+	function printDebug() {
+		console.log(`CURRENT WORD: ${JSON.stringify(currentWord, null, 4)}`);
+		console.log(`GUESSES: ${JSON.stringify(guesses, null, 4)}`);
+		console.log(`NEXT WORD: ${JSON.stringify($nextWord, null, 4)}`);
+	}
 </script>
 
 <h1>Settings</h1>
@@ -78,6 +89,8 @@
 	<label for="auto-copy-results-input">Auto copy results</label>
 </div>
 
+<button class="debug-button" on:click={printDebug}> 🤓 </button>
+
 <style>
 	h1 {
 		margin: 0 0 20px 0;
@@ -121,5 +134,20 @@
 		color: #8080ff;
 		left: 100%;
 		transform: translate(-100%, 0);
+	}
+
+	.debug-button {
+		background-color: transparent;
+		color: #fff;
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+		justify-content: center;
+		text-align: center;
+		cursor: pointer;
+		width: 30px;
+		border-radius: 1em;
+		border-style: none;
+		text-decoration: none;
 	}
 </style>

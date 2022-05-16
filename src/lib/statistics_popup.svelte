@@ -57,7 +57,9 @@
 <div class="container">
 	<h1>Statistics</h1>
 
-	<div class="graph">(Graph coming soon)</div>
+	<div class="graph">
+		<!-- TODO: Make statistics graph -->
+	</div>
 
 	<div class="statistics">
 		<div class="stat total-plays">
@@ -219,10 +221,8 @@
 		background-color: var(--correct-tile-background-color);
 		font-size: 1rem;
 		border-radius: 0.5em;
-		outline: 0;
 		border-style: none;
 		color: #fff;
-		outline: none !important;
 		cursor: pointer;
 		user-select: none;
 	}

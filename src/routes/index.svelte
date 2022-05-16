@@ -79,7 +79,13 @@
 	const helpModal = writable(null);
 	const showHelpModal = () => helpModal.set(bind(HelpPopup, {}));
 	const settingsModal = writable(null);
-	const showSettingsModal = () => settingsModal.set(bind(SettingsPopup, {}));
+	const showSettingsModal = () =>
+		settingsModal.set(
+			bind(SettingsPopup, {
+				currentWord: word,
+				guesses
+			})
+		);
 	const statisticsModal = writable(null);
 	const showStatisticsModal = (
 		showShareButton: boolean = false,

@@ -1,6 +1,6 @@
 import type { IDatabase, PlayerWord, Word } from '$lib/types';
 import moment from 'moment';
-import type { Collection, MongoClient, WithId } from 'mongodb';
+import type { MongoClient, WithId } from 'mongodb';
 
 type WordDocument = WithId<Document> & Omit<Word, 'wordId'>;
 
@@ -20,7 +20,7 @@ export class MongoDB implements IDatabase {
 		const collection = db.collection('words');
 		const words = (await collection
 			.find({
-				date: { $gte: moment.utc().startOf('day').toDate() }
+				date: { $gte: moment.utc().startOf('day').subtract(1, 'day').toDate() }
 			})
 			.sort({ date: 1 })
 			.toArray()) as WordDocument[];

@@ -83,6 +83,7 @@ export interface IDatabase {
 	getPreviousPlayerWord: () => Promise<PlayerWord>;
 	getWordHistory: () => Promise<Word[]>;
 	wordExists: (word: string) => Promise<boolean>;
+	getDesc: (id: string, word: string) => Promise<string>;
 }
 
 export const latestUrl = '/word.json';

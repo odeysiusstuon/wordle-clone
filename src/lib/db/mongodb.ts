@@ -1,6 +1,6 @@
 import type { IDatabase, PlayerWord, Word } from '$lib/types';
 import moment from 'moment-timezone';
-import type { MongoClient, WithId } from 'mongodb';
+import { ObjectId, type MongoClient, type WithId } from 'mongodb';
 
 type WordDocument = WithId<Document> & Omit<Word, 'wordId'>;
 
@@ -150,5 +150,20 @@ export class MongoDB implements IDatabase {
 			word
 		});
 		return foundWord !== null;
+	}
+
+	async getDesc(id: string, word: string) {
+		const connection = await this.client;
+		const db = connection.db();
+		const collection = db.collection('words');
+		const foundWord = (await collection.findOne({
+			_id: new ObjectId(id)
+		})) as WordDocument;
+
+		if (foundWord && foundWord.word === word) {
+			return foundWord.desc;
+		} else {
+			return null;
+		}
 	}
 }

@@ -11,6 +11,13 @@ body {
 	font-family: var(--crimson-font-family);
 }
 
+body {
+	position: fixed;
+	top: 0px;
+	overflow: hidden;
+	width: 100%;
+}
+
 .material-symbols-outlined {
 	font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
 }

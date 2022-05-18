@@ -1,10 +1,12 @@
 import type { IDatabase, PlayerWord, Word } from '$lib/types';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import type { MongoClient, WithId } from 'mongodb';
 
 type WordDocument = WithId<Document> & Omit<Word, 'wordId'>;
 
 const wordCacheLimit = 2;
+
+const timezone = 'America/Los_Angeles';
 
 export class MongoDB implements IDatabase {
 	client: Promise<MongoClient>;
@@ -20,7 +22,7 @@ export class MongoDB implements IDatabase {
 		const collection = db.collection('words');
 		const words = (await collection
 			.find({
-				date: { $gte: moment.utc().startOf('day').subtract(1, 'day').toDate() }
+				date: { $gte: moment.tz(timezone).startOf('day').toDate() }
 			})
 			.sort({ date: 1 })
 			.toArray()) as WordDocument[];

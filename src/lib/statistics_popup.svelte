@@ -4,6 +4,7 @@
 	import countdownStore from './stores/countdown_store';
 	import { Circle2 } from 'svelte-loading-spinners';
 	import { browser } from '$app/env';
+	import SvelteMarkdown from 'svelte-markdown';
 
 	import { nextUrl, type PlayerWord } from './types';
 	import { copyGuessesToClipboard } from './utils';
@@ -14,6 +15,8 @@
 	export let showShareButton: boolean = false;
 	export let showNextWordTime: boolean = false;
 	export let addToast: (message: string) => void;
+
+	export let wordDescription: string;
 
 	let clock: Readable<number>;
 
@@ -129,6 +132,12 @@
 			{/if}
 		</div>
 	{/if}
+
+	{#if wordDescription}
+		<div class="word-description">
+			<blockquote><SvelteMarkdown source={wordDescription} /></blockquote>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -228,5 +237,12 @@
 		color: #fff;
 		cursor: pointer;
 		user-select: none;
+	}
+
+	blockquote {
+		margin: 0;
+		padding: 1px 15px 1px 15px;
+		background: #3a3a3a;
+		border-radius: 5px;
 	}
 </style>

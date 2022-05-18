@@ -4,7 +4,7 @@
 		const res = await fetch(url);
 
 		if (res.ok) {
-			const { word } = await res.json();
+			const { word }: { word: PlayerWord } = await res.json();
 
 			let guesses: Guess[] = [];
 			let currentNumAttempts = 0;
@@ -32,12 +32,26 @@
 				}
 			}
 
+			let wordDescription: string;
+			if (guesses.length > 0) {
+				const correctGuess = guesses.find((g) => g.guessed && g.feedback.correct);
+				if (correctGuess && correctGuess.guessed && correctGuess.word) {
+					const wordDescriptionRes = await fetch(
+						`/word/desc/${word.wordId}.json?word=${correctGuess.word}`
+					);
+					if (wordDescriptionRes.ok) {
+						wordDescription = (await wordDescriptionRes.json()).desc;
+					}
+				}
+			}
+
 			return {
 				status: res.status,
 				props: {
 					word,
 					guesses,
-					currentNumAttempts
+					currentNumAttempts,
+					wordDescription
 				}
 			};
 		} else {
@@ -107,13 +121,15 @@
 				currentWord: word,
 				showShareButton,
 				showNextWordTime,
-				addToast
+				addToast,
+				wordDescription
 			})
 		);
 
 	const modalWindowStyle = { backgroundColor: '#222', color: '#fff', textAlign: 'left' };
 
 	export let word: PlayerWord;
+	export let wordDescription: string;
 
 	const animationDuration = 400;
 
@@ -157,7 +173,7 @@
 	}
 
 	let playWinAnimation: boolean = false;
-	async function onFinish(won: boolean) {
+	async function onFinish(correctGuess: Guess, won: boolean) {
 		if (won) {
 			addToast('Splendid');
 
@@ -185,6 +201,16 @@
 
 		if ($autoCopyResults) {
 			copyGuessesToClipboard(statisticsStore, word);
+		}
+
+		// To satisfy TS intellisense
+		if (correctGuess.guessed) {
+			const wordDescriptionRes = await fetch(
+				`/word/desc/${word.wordId}.json?word=${correctGuess.word}`
+			);
+			if (wordDescriptionRes.ok) {
+				wordDescription = (await wordDescriptionRes.json()).desc;
+			}
 		}
 
 		showStatisticsModal(true);
@@ -279,9 +305,9 @@
 		setTimeout(() => (animating = false), animationDuration * letterLength);
 
 		if (guess.guessed && guess.feedback.correct) {
-			await onFinish(true);
+			await onFinish(guess, true);
 		} else if (currentNumAttempts >= maxGuesses) {
-			await onFinish(false);
+			await onFinish(guess, false);
 		}
 	}
 

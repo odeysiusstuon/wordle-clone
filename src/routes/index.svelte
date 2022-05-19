@@ -264,6 +264,7 @@
 	}
 
 	async function makeGuess() {
+		console.log(canGuess);
 		if (!canGuess) return;
 
 		if (currentGuessWord.length !== letterLength) {
@@ -321,8 +322,12 @@
 
 	async function handleKeyPress(code: string, character: string = undefined) {
 		if (!(keyboardMap.indexOf(character) !== -1)) return;
+
+		const isEnter = code === 'Enter' || code === 'NumpadEnter';
+		const isBackspace = code === 'Backspace';
+
 		if (!canGuess) {
-			if (currentGuessCooldownClock && currentGuessCooldownClock > 0 && code === 'Enter') {
+			if (currentGuessCooldownClock && currentGuessCooldownClock > 0 && isEnter) {
 				addToast(
 					`Wait ${currentGuessCooldownClock / 1000} second${
 						currentGuessCooldownClock / 1000 === 1 ? '' : 's'
@@ -332,21 +337,16 @@
 			return;
 		}
 
-		switch (code) {
-			case 'Enter':
-			case 'NumpadEnter':
-				await makeGuess();
-				break;
-			case 'Backspace':
-				if (currentGuessWord.length > 0) {
-					currentGuessWord = currentGuessWord.slice(0, -1);
-				}
-				break;
-			default:
-				if (currentGuessWord.length < letterLength && character) {
-					currentGuessWord += keyToCharacter(code);
-				}
-				break;
+		if (isEnter) {
+			await makeGuess();
+		} else if (isBackspace) {
+			if (currentGuessWord.length > 0) {
+				currentGuessWord = currentGuessWord.slice(0, -1);
+			}
+		} else {
+			if (currentGuessWord.length < letterLength && character) {
+				currentGuessWord += keyToCharacter(code);
+			}
 		}
 	}
 

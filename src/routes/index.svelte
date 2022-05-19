@@ -151,7 +151,7 @@
 	let currentGuessCooldownClock: number = null;
 	let countdownInterval: NodeJS.Timer;
 	let guessOnCooldown: boolean = false;
-	$: guessOnCooldown = currentGuessCooldownClock && currentGuessCooldownClock > 0;
+	$: guessOnCooldown = currentGuessCooldownClock !== null && currentGuessCooldownClock > 0;
 
 	let canGuess: boolean = true;
 	$: canGuess =

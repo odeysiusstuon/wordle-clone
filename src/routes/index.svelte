@@ -68,10 +68,12 @@
 </script>
 
 <script lang="ts">
-	import Modal, { bind } from 'svelte-simple-modal';
-	import { writable } from 'svelte/store';
+	import { Mutex } from 'async-mutex';
 	import lodash from 'lodash';
 	const { countBy } = lodash;
+	import Modal, { bind } from 'svelte-simple-modal';
+	import { writable } from 'svelte/store';
+	import { onMount } from 'svelte';
 
 	import '../styles/global.css';
 
@@ -97,7 +99,6 @@
 	import HelpPopup from '$lib/help_popup.svelte';
 	import SettingsPopup from '$lib/settings_popup.svelte';
 	import StatisticsPopup from '$lib/statistics_popup.svelte';
-	import { onMount } from 'svelte';
 	import { browser } from '$app/env';
 	import { variables } from '$lib/env';
 	import { SmallCache } from '$lib/small_cache';
@@ -265,6 +266,8 @@
 		canGuess = false;
 	}
 
+	const guessMutex = new Mutex();
+
 	async function makeGuess() {
 		if (!canGuess) return;
 
@@ -291,32 +294,35 @@
 			return;
 		}
 
-		canGuess = false;
 		animating = true;
 		setTimeout(() => (animating = false), animationDuration * letterLength);
 
-		const res = await fetch(`${validateUrl}?guess=${currentGuessWord}`);
-		const { feedback }: { feedback: GuessFeedback } = await res.json();
-		currentNumAttempts++;
-		const guess = {
-			guessed: true,
-			attemptNum: currentNumAttempts,
-			word: currentGuessWord,
-			feedback
-		};
-		currentGuessWord = '';
-		guesses[currentNumAttempts - 1] = guess;
+		// This is redundant, but I think it fixes a race condition
+		if (canGuess) {
+			canGuess = false;
+			const res = await fetch(`${validateUrl}?guess=${currentGuessWord}`);
+			const { feedback }: { feedback: GuessFeedback } = await res.json();
+			currentNumAttempts++;
+			const guess = {
+				guessed: true,
+				attemptNum: currentNumAttempts,
+				word: currentGuessWord,
+				feedback
+			};
+			currentGuessWord = '';
+			guesses[currentNumAttempts - 1] = guess;
 
-		if (browser && $saveProgress) {
-			statisticsStore.addDayIfNotPresent(word);
-			statisticsStore.setGuess(word, currentNumAttempts - 1, guess);
-			statisticsStore.savePlayerStatistics();
-		}
+			if (browser && $saveProgress) {
+				statisticsStore.addDayIfNotPresent(word);
+				statisticsStore.setGuess(word, currentNumAttempts - 1, guess);
+				statisticsStore.savePlayerStatistics();
+			}
 
-		if (guess.guessed && guess.feedback.correct) {
-			await onFinish(guess, true);
-		} else if (currentNumAttempts >= maxGuesses) {
-			await onFinish(guess, false);
+			if (guess.guessed && guess.feedback.correct) {
+				await onFinish(guess, true);
+			} else if (currentNumAttempts >= maxGuesses) {
+				await onFinish(guess, false);
+			}
 		}
 	}
 

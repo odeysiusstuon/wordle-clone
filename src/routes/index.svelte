@@ -68,10 +68,12 @@
 </script>
 
 <script lang="ts">
-	import Modal, { bind } from 'svelte-simple-modal';
-	import { writable } from 'svelte/store';
 	import lodash from 'lodash';
 	const { countBy } = lodash;
+	import { Mutex } from 'async-mutex';
+	import Modal, { bind } from 'svelte-simple-modal';
+	import { writable } from 'svelte/store';
+	import { onMount } from 'svelte';
 
 	import '../styles/global.css';
 
@@ -97,9 +99,9 @@
 	import HelpPopup from '$lib/help_popup.svelte';
 	import SettingsPopup from '$lib/settings_popup.svelte';
 	import StatisticsPopup from '$lib/statistics_popup.svelte';
-	import { onMount } from 'svelte';
 	import { browser } from '$app/env';
 	import { variables } from '$lib/env';
+	import { SmallCache } from '$lib/small_cache';
 
 	const helpModal = writable(null);
 	const showHelpModal = () => helpModal.set(bind(HelpPopup, {}));
@@ -150,12 +152,15 @@
 	const guessCooldown = 2 * 1000;
 	let currentGuessCooldownClock: number = null;
 	let countdownInterval: NodeJS.Timer;
+	let guessOnCooldown: boolean = false;
+	$: guessOnCooldown = currentGuessCooldownClock !== null && currentGuessCooldownClock > 0;
+
 	let canGuess: boolean = true;
 	$: canGuess =
 		currentNumAttempts < maxGuesses &&
 		(!latestGuess || !latestGuess.guessed || !hasFinished) &&
 		!animating &&
-		(!currentGuessCooldownClock || currentGuessCooldownClock <= 0);
+		!guessOnCooldown;
 
 	$: {
 		if (countdownInterval && currentGuessCooldownClock !== null && currentGuessCooldownClock <= 0) {
@@ -255,20 +260,20 @@
 		return allowed;
 	}
 
+	function activateGuessCooldown() {
+		currentGuessCooldownClock = guessCooldown;
+		countdownInterval = setInterval(() => (currentGuessCooldownClock -= 1 * 1000), 1 * 1000);
+		canGuess = false;
+	}
+
+	const wordCheckedCache: SmallCache<string> = new SmallCache();
+	const wordCheckMutex = new Mutex();
+
 	async function makeGuess() {
 		if (!canGuess) return;
 
-		currentGuessCooldownClock = guessCooldown;
-		countdownInterval = setInterval(() => (currentGuessCooldownClock -= 1 * 1000), 1 * 1000);
-
 		if (currentGuessWord.length !== letterLength) {
 			onInsufficientInput();
-			return;
-		}
-
-		if (!(await wordExists())) {
-			addToast('Not in word list');
-			tileset.shakeLatestRow();
 			return;
 		}
 
@@ -283,55 +288,89 @@
 			}
 		}
 
-		const res = await fetch(`${validateUrl}?guess=${currentGuessWord}`);
-		const { feedback }: { feedback: GuessFeedback } = await res.json();
-		currentNumAttempts++;
-		const guess = {
-			guessed: true,
-			attemptNum: currentNumAttempts,
-			word: currentGuessWord,
-			feedback
-		};
-		currentGuessWord = '';
-		guesses[currentNumAttempts - 1] = guess;
-
-		if (browser && $saveProgress) {
-			statisticsStore.addDayIfNotPresent(word);
-			statisticsStore.setGuess(word, currentNumAttempts - 1, guess);
-			statisticsStore.savePlayerStatistics();
+		// Race conditions >.>
+		const release = await wordCheckMutex.acquire();
+		if (wordCheckedCache.has(currentGuessWord)) {
+			if (wordNotExistsCache.has(currentGuessWord)) {
+				activateGuessCooldown();
+				addToast('Not in word list');
+				tileset.shakeLatestRow();
+				release();
+				return;
+			}
+		} else {
+			wordCheckedCache.add(currentGuessWord);
+			if (!(await wordExists())) {
+				activateGuessCooldown();
+				addToast('Not in word list');
+				tileset.shakeLatestRow();
+				release();
+				return;
+			}
 		}
+		release();
 
 		animating = true;
 		setTimeout(() => (animating = false), animationDuration * letterLength);
 
-		if (guess.guessed && guess.feedback.correct) {
-			await onFinish(guess, true);
-		} else if (currentNumAttempts >= maxGuesses) {
-			await onFinish(guess, false);
+		// This is redundant, but I think it fixes a race condition
+		if (canGuess) {
+			canGuess = false;
+			const res = await fetch(`${validateUrl}?guess=${currentGuessWord}`);
+			const { feedback }: { feedback: GuessFeedback } = await res.json();
+			currentNumAttempts++;
+			const guess = {
+				guessed: true,
+				attemptNum: currentNumAttempts,
+				word: currentGuessWord,
+				feedback
+			};
+			currentGuessWord = '';
+			guesses[currentNumAttempts - 1] = guess;
+
+			if (browser && $saveProgress) {
+				statisticsStore.addDayIfNotPresent(word);
+				statisticsStore.setGuess(word, currentNumAttempts - 1, guess);
+				statisticsStore.savePlayerStatistics();
+			}
+
+			if (guess.guessed && guess.feedback.correct) {
+				await onFinish(guess, true);
+			} else if (currentNumAttempts >= maxGuesses) {
+				await onFinish(guess, false);
+			}
 		}
 	}
 
 	const keyboardMap = 'qwertyuiop\nasdfghjkl\n↵zxcvbnm←';
 
 	async function handleKeyPress(code: string, character: string = undefined) {
-		if (!canGuess) return;
 		if (!(keyboardMap.indexOf(character) !== -1)) return;
 
-		switch (code) {
-			case 'Enter':
-			case 'NumpadEnter':
-				await makeGuess();
-				break;
-			case 'Backspace':
-				if (currentGuessWord.length > 0) {
-					currentGuessWord = currentGuessWord.slice(0, -1);
-				}
-				break;
-			default:
-				if (currentGuessWord.length < letterLength && character) {
-					currentGuessWord += keyToCharacter(code);
-				}
-				break;
+		const isEnter = code === 'Enter' || code === 'NumpadEnter';
+		const isBackspace = code === 'Backspace';
+
+		if (!canGuess) {
+			if (currentGuessCooldownClock && currentGuessCooldownClock > 0 && isEnter) {
+				addToast(
+					`Wait ${currentGuessCooldownClock / 1000} second${
+						currentGuessCooldownClock / 1000 === 1 ? '' : 's'
+					} before guessing again`
+				);
+			}
+			return;
+		}
+
+		if (isEnter) {
+			await makeGuess();
+		} else if (isBackspace) {
+			if (currentGuessWord.length > 0) {
+				currentGuessWord = currentGuessWord.slice(0, -1);
+			}
+		} else {
+			if (currentGuessWord.length < letterLength && character) {
+				currentGuessWord += keyToCharacter(code);
+			}
 		}
 	}
 
@@ -350,11 +389,17 @@
 		await handleKeyPress(event.code, key);
 	}
 
+	const wordNotExistsCache: SmallCache<string> = new SmallCache();
+
 	async function wordExists() {
+		if (wordNotExistsCache.has(currentGuessWord)) return false;
 		const res = await fetch(`/word/exists/${currentGuessWord}.json`);
 		if (res.ok) {
-			return (await res.json()).exists;
+			if ((await res.json()).exists) {
+				return true;
+			}
 		}
+		wordNotExistsCache.add(currentGuessWord);
 		return false;
 	}
 
@@ -440,6 +485,7 @@
 					{animationDuration}
 					{animating}
 					{animateFinishedRefresh}
+					currentRowDeactivated={guessOnCooldown}
 					shakingAllowed
 					--num-rows={maxGuesses}
 					--num-columns={letterLength}

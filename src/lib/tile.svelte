@@ -9,6 +9,7 @@
 	export let animationDuration: number = 0;
 	export let guessed: boolean = false;
 	export let isWinTile: boolean = false;
+	export let deactivated: boolean = false;
 	let forceAnimateFinishedRefresh = false;
 	let isAnimating = false;
 
@@ -50,7 +51,11 @@
 
 {#if guessed}
 	{#if animateFinishedRefresh && forceAnimateFinishedRefresh}
-		<div class={`tile guessed ${isAnimating ? '' : getFeedbackClass(feedback)}`} in:flip>
+		<div
+			class={`tile guessed ${isAnimating ? '' : getFeedbackClass(feedback)}`}
+			class:deactivated
+			in:flip
+		>
 			{letter}
 		</div>
 	{:else}
@@ -58,6 +63,7 @@
 			<div
 				class={`tile guessed ${isAnimating ? '' : getFeedbackClass(feedback)}`}
 				class:win={isWinTile}
+				class:deactivated
 				in:flip
 			>
 				{letter}
@@ -66,20 +72,20 @@
 	{/if}
 {:else if letter.length > 0}
 	{#if animateFinishedRefresh}
-		<div class="tile tbd" in:flip>
+		<div class="tile tbd" class:deactivated in:flip>
 			{letter}
 		</div>
 	{:else}
-		<div class="tile tbd" in:bounce>
+		<div class="tile tbd" class:deactivated in:bounce>
 			{letter}
 		</div>
 	{/if}
 {:else if animateFinishedRefresh}
-	<div class="tile empty" in:flip>
+	<div class="tile empty" class:deactivated in:flip>
 		{letter}
 	</div>
 {:else}
-	<div class="tile empty">
+	<div class="tile empty" class:deactivated>
 		{letter}
 	</div>
 {/if}
@@ -96,6 +102,10 @@
 		font-size: 2rem;
 		text-transform: uppercase;
 		user-select: none;
+	}
+
+	.tile.deactivated {
+		color: #777;
 	}
 
 	.tile.empty,

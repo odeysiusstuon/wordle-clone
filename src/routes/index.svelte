@@ -100,6 +100,7 @@
 	import { onMount } from 'svelte';
 	import { browser } from '$app/env';
 	import { variables } from '$lib/env';
+	import { SmallCache } from '$lib/small_cache';
 
 	const helpModal = writable(null);
 	const showHelpModal = () => helpModal.set(bind(HelpPopup, {}));
@@ -264,7 +265,6 @@
 	}
 
 	async function makeGuess() {
-		console.log(canGuess);
 		if (!canGuess) return;
 
 		if (currentGuessWord.length !== letterLength) {
@@ -365,11 +365,17 @@
 		await handleKeyPress(event.code, key);
 	}
 
+	const wordNotExistsCache: SmallCache<string> = new SmallCache();
+
 	async function wordExists() {
+		if (wordNotExistsCache.has(currentGuessWord)) return;
 		const res = await fetch(`/word/exists/${currentGuessWord}.json`);
 		if (res.ok) {
-			return (await res.json()).exists;
+			if ((await res.json()).exists) {
+				return true;
+			}
 		}
+		wordNotExistsCache.add(currentGuessWord);
 		return false;
 	}
 

@@ -70,6 +70,7 @@
 <script lang="ts">
 	import lodash from 'lodash';
 	const { countBy } = lodash;
+	import { Mutex } from 'async-mutex';
 	import Modal, { bind } from 'svelte-simple-modal';
 	import { writable } from 'svelte/store';
 	import { onMount } from 'svelte';
@@ -266,6 +267,7 @@
 	}
 
 	const wordCheckedCache: SmallCache<string> = new SmallCache();
+	const wordCheckMutex = new Mutex();
 
 	async function makeGuess() {
 		if (!canGuess) return;
@@ -287,22 +289,26 @@
 		}
 
 		// Race conditions >.>
-		if (wordCheckedCache.has(currentGuessWord)) {
-			if (wordNotExistsCache.has(currentGuessWord)) {
-				activateGuessCooldown();
-				addToast('Not in word list');
-				tileset.shakeLatestRow();
-				return;
+		wordCheckMutex.acquire().then(async (release) => {
+			if (wordCheckedCache.has(currentGuessWord)) {
+				if (wordNotExistsCache.has(currentGuessWord)) {
+					activateGuessCooldown();
+					addToast('Not in word list');
+					tileset.shakeLatestRow();
+					return;
+				}
+			} else {
+				wordCheckedCache.add(currentGuessWord);
+				if (!(await wordExists())) {
+					activateGuessCooldown();
+					addToast('Not in word list');
+					tileset.shakeLatestRow();
+					release();
+					return;
+				}
+				release();
 			}
-		} else {
-			wordCheckedCache.add(currentGuessWord);
-			if (!(await wordExists())) {
-				activateGuessCooldown();
-				addToast('Not in word list');
-				tileset.shakeLatestRow();
-				return;
-			}
-		}
+		});
 
 		animating = true;
 		setTimeout(() => (animating = false), animationDuration * letterLength);

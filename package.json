@@ -30,6 +30,7 @@
   },
   "type": "module",
   "dependencies": {
+    "async-mutex": "^0.3.2",
     "dotenv": "^16.0.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.3",

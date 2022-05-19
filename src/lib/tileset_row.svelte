@@ -17,6 +17,7 @@
 	export let currentNumAttempts: number;
 	export let currentGuessWord: string;
 	export let animating: boolean = false;
+	export let deactivated: boolean = false;
 
 	function easeFunction(t: number, offset: number = 0) {
 		return 1 - Math.cos(Math.PI * t + offset) / 2;
@@ -60,6 +61,7 @@
 					{animateFinishedRefresh}
 					feedback={guess.feedback.hint.letters[j]}
 					isWinTile={guess.feedback.correct && !animating}
+					{deactivated}
 					--delay={`${j * animationDuration}ms`}
 				/>
 			{/if}
@@ -73,6 +75,7 @@
 					animationDelay={j * animationDuration}
 					{animationDuration}
 					{animateFinishedRefresh}
+					{deactivated}
 					--delay={`${j * animationDuration}ms`}
 				/>
 			{:else}
@@ -82,6 +85,7 @@
 					animationDelay={j * animationDuration}
 					{animationDuration}
 					{animateFinishedRefresh}
+					{deactivated}
 					--delay={`${j * animationDuration}ms`}
 				/>
 			{/if}

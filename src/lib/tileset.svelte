@@ -22,6 +22,7 @@
 	export let currentGuessWord: string;
 	export let animating: boolean = false;
 	export let shakingAllowed: boolean = false;
+	export let currentRowDeactivated: boolean = false;
 
 	export let animateFinishedRefresh: boolean = false;
 
@@ -52,6 +53,7 @@
 					{animating}
 					{shakeDuration}
 					{animateFinishedRefresh}
+					deactivated={currentRowDeactivated}
 					shouldShake
 					alwaysShowTbdTiles
 					--num-columns={numColumns}

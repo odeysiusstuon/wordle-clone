@@ -150,12 +150,15 @@
 	const guessCooldown = 2 * 1000;
 	let currentGuessCooldownClock: number = null;
 	let countdownInterval: NodeJS.Timer;
+	let guessOnCooldown: boolean = false;
+	$: guessOnCooldown = currentGuessCooldownClock && currentGuessCooldownClock > 0;
+
 	let canGuess: boolean = true;
 	$: canGuess =
 		currentNumAttempts < maxGuesses &&
 		(!latestGuess || !latestGuess.guessed || !hasFinished) &&
 		!animating &&
-		(!currentGuessCooldownClock || currentGuessCooldownClock <= 0);
+		!guessOnCooldown;
 
 	$: {
 		if (countdownInterval && currentGuessCooldownClock !== null && currentGuessCooldownClock <= 0) {
@@ -255,20 +258,16 @@
 		return allowed;
 	}
 
+	function activateGuessCooldown() {
+		currentGuessCooldownClock = guessCooldown;
+		countdownInterval = setInterval(() => (currentGuessCooldownClock -= 1 * 1000), 1 * 1000);
+	}
+
 	async function makeGuess() {
 		if (!canGuess) return;
 
-		currentGuessCooldownClock = guessCooldown;
-		countdownInterval = setInterval(() => (currentGuessCooldownClock -= 1 * 1000), 1 * 1000);
-
 		if (currentGuessWord.length !== letterLength) {
 			onInsufficientInput();
-			return;
-		}
-
-		if (!(await wordExists())) {
-			addToast('Not in word list');
-			tileset.shakeLatestRow();
 			return;
 		}
 
@@ -281,6 +280,13 @@
 				tileset.shakeLatestRow();
 				return;
 			}
+		}
+
+		if (!(await wordExists())) {
+			activateGuessCooldown();
+			addToast('Not in word list');
+			tileset.shakeLatestRow();
+			return;
 		}
 
 		const res = await fetch(`${validateUrl}?guess=${currentGuessWord}`);
@@ -314,8 +320,17 @@
 	const keyboardMap = 'qwertyuiop\nasdfghjkl\n↵zxcvbnm←';
 
 	async function handleKeyPress(code: string, character: string = undefined) {
-		if (!canGuess) return;
 		if (!(keyboardMap.indexOf(character) !== -1)) return;
+		if (!canGuess) {
+			if (currentGuessCooldownClock && currentGuessCooldownClock > 0 && code === 'Enter') {
+				addToast(
+					`Wait ${currentGuessCooldownClock / 1000} second${
+						currentGuessCooldownClock / 1000 === 1 ? '' : 's'
+					} before guessing again`
+				);
+			}
+			return;
+		}
 
 		switch (code) {
 			case 'Enter':
@@ -440,6 +455,7 @@
 					{animationDuration}
 					{animating}
 					{animateFinishedRefresh}
+					currentRowDeactivated={guessOnCooldown}
 					shakingAllowed
 					--num-rows={maxGuesses}
 					--num-columns={letterLength}

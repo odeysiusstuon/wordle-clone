@@ -287,7 +287,8 @@
 			}
 		}
 
-		if (!(await wordExists())) {
+		// This is redundant, but I think it fixes a race condition
+		if (canGuess && !(await wordExists())) {
 			activateGuessCooldown();
 			addToast('Not in word list');
 			tileset.shakeLatestRow();

@@ -290,6 +290,9 @@
 			return;
 		}
 
+		animating = true;
+		setTimeout(() => (animating = false), animationDuration * letterLength);
+
 		const res = await fetch(`${validateUrl}?guess=${currentGuessWord}`);
 		const { feedback }: { feedback: GuessFeedback } = await res.json();
 		currentNumAttempts++;
@@ -307,9 +310,6 @@
 			statisticsStore.setGuess(word, currentNumAttempts - 1, guess);
 			statisticsStore.savePlayerStatistics();
 		}
-
-		animating = true;
-		setTimeout(() => (animating = false), animationDuration * letterLength);
 
 		if (guess.guessed && guess.feedback.correct) {
 			await onFinish(guess, true);

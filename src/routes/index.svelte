@@ -289,26 +289,26 @@
 		}
 
 		// Race conditions >.>
-		wordCheckMutex.acquire().then(async (release) => {
-			if (wordCheckedCache.has(currentGuessWord)) {
-				if (wordNotExistsCache.has(currentGuessWord)) {
-					activateGuessCooldown();
-					addToast('Not in word list');
-					tileset.shakeLatestRow();
-					return;
-				}
-			} else {
-				wordCheckedCache.add(currentGuessWord);
-				if (!(await wordExists())) {
-					activateGuessCooldown();
-					addToast('Not in word list');
-					tileset.shakeLatestRow();
-					release();
-					return;
-				}
+		const release = await wordCheckMutex.acquire();
+		if (wordCheckedCache.has(currentGuessWord)) {
+			if (wordNotExistsCache.has(currentGuessWord)) {
+				activateGuessCooldown();
+				addToast('Not in word list');
+				tileset.shakeLatestRow();
 				release();
+				return;
 			}
-		});
+		} else {
+			wordCheckedCache.add(currentGuessWord);
+			if (!(await wordExists())) {
+				activateGuessCooldown();
+				addToast('Not in word list');
+				tileset.shakeLatestRow();
+				release();
+				return;
+			}
+		}
+		release();
 
 		animating = true;
 		setTimeout(() => (animating = false), animationDuration * letterLength);

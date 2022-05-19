@@ -288,7 +288,7 @@
 
 		// Race conditions >.>
 		if (wordCheckedCache.has(currentGuessWord)) {
-			if (!wordNotExistsCache.has(currentGuessWord)) {
+			if (wordNotExistsCache.has(currentGuessWord)) {
 				activateGuessCooldown();
 				addToast('Not in word list');
 				tileset.shakeLatestRow();

@@ -262,6 +262,7 @@
 	function activateGuessCooldown() {
 		currentGuessCooldownClock = guessCooldown;
 		countdownInterval = setInterval(() => (currentGuessCooldownClock -= 1 * 1000), 1 * 1000);
+		canGuess = false;
 	}
 
 	async function makeGuess() {
@@ -290,6 +291,7 @@
 			return;
 		}
 
+		canGuess = false;
 		animating = true;
 		setTimeout(() => (animating = false), animationDuration * letterLength);
 

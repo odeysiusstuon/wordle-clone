@@ -68,7 +68,6 @@
 </script>
 
 <script lang="ts">
-	import { Mutex } from 'async-mutex';
 	import lodash from 'lodash';
 	const { countBy } = lodash;
 	import Modal, { bind } from 'svelte-simple-modal';
@@ -266,7 +265,7 @@
 		canGuess = false;
 	}
 
-	const guessMutex = new Mutex();
+	const wordCheckedCache: SmallCache<string> = new SmallCache();
 
 	async function makeGuess() {
 		if (!canGuess) return;
@@ -287,12 +286,22 @@
 			}
 		}
 
-		// This is redundant, but I think it fixes a race condition
-		if (canGuess && !(await wordExists())) {
-			activateGuessCooldown();
-			addToast('Not in word list');
-			tileset.shakeLatestRow();
-			return;
+		// Race conditions >.>
+		if (wordCheckedCache.has(currentGuessWord)) {
+			if (!wordNotExistsCache.has(currentGuessWord)) {
+				activateGuessCooldown();
+				addToast('Not in word list');
+				tileset.shakeLatestRow();
+				return;
+			}
+		} else {
+			wordCheckedCache.add(currentGuessWord);
+			if (!(await wordExists())) {
+				activateGuessCooldown();
+				addToast('Not in word list');
+				tileset.shakeLatestRow();
+				return;
+			}
 		}
 
 		animating = true;
@@ -377,7 +386,7 @@
 	const wordNotExistsCache: SmallCache<string> = new SmallCache();
 
 	async function wordExists() {
-		if (wordNotExistsCache.has(currentGuessWord)) return;
+		if (wordNotExistsCache.has(currentGuessWord)) return false;
 		const res = await fetch(`/word/exists/${currentGuessWord}.json`);
 		if (res.ok) {
 			if ((await res.json()).exists) {

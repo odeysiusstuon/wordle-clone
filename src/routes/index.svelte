@@ -576,6 +576,10 @@
 		margin-top: 20px;
 	}
 
+	.header-buttons-right {
+		margin-right: 20px;
+	}
+
 	.header-buttons-left,
 	.header-buttons-right {
 		display: flex;

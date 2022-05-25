@@ -14,9 +14,12 @@
 
 <style>
 	.toaster {
-		position: absolute;
-		top: 10%;
+		display: flex;
+		flex-wrap: wrap;
+		flex-flow: column;
 		left: 50%;
+		position: fixed;
+		transform: translate(-50%, 0px);
 	}
 
 	.toast {
@@ -31,5 +34,6 @@
 		margin: 10px;
 		padding: 10px 10px;
 		font-weight: bold;
+		flex-basis: 100%;
 	}
 </style>

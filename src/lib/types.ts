@@ -30,14 +30,14 @@ export type GuessFeedback = {
 
 export type Guess =
 	| {
-			guessed: true;
-			attemptNum: number;
-			word: string;
-			feedback: GuessFeedback;
-	  }
+		guessed: true;
+		attemptNum: number;
+		word: string;
+		feedback: GuessFeedback;
+	}
 	| {
-			guessed: false;
-	  };
+		guessed: false;
+	};
 
 export function getFeedbackClass(feedback: LetterFeedback) {
 	if (feedback === LetterFeedback.None) {
@@ -81,7 +81,7 @@ export interface IDatabase {
 	getLatestPlayerWord: () => Promise<PlayerWord>;
 	getNextPlayerWord: () => Promise<PlayerWord>;
 	getPreviousPlayerWord: () => Promise<PlayerWord>;
-	getWordHistory: () => Promise<Word[]>;
+	getWordHistory: () => Promise<PlayerWord[]>;
 	wordExists: (word: string) => Promise<boolean>;
 	getDesc: (id: string, word: string) => Promise<string>;
 }

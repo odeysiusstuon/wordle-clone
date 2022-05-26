@@ -3,6 +3,7 @@ import moment from 'moment';
 import { get } from 'svelte/store';
 import { settingsStore } from './settings_store';
 import { browser } from '$app/env';
+import { findMaxStreak } from '$lib/utils';
 
 export class StatisticsStore {
 	private playerStatistics: PlayerStatistics;
@@ -23,6 +24,12 @@ export class StatisticsStore {
 
 	savePlayerStatistics() {
 		this.playerStatistics.totalPlays = Object.keys(this.playerStatistics.days).length;
+		this.playerStatistics.totalWins = Object.values(this.playerStatistics.days).map(stats => {
+			if (stats.guessList.some(g => g.guessed && g.feedback.correct)) {
+				return true;
+			}
+			return undefined;
+		}).length;
 		localStorage.setItem('playerStatistics', JSON.stringify(this.playerStatistics));
 	}
 
@@ -74,18 +81,38 @@ export class StatisticsStore {
 		return previousDay.guessList.some((g) => g.guessed && g.feedback.correct);
 	}
 
-	async addWin() {
-		this.playerStatistics.totalWins++;
+	private calculateStreak(currentWord: PlayerWord, hasFinished: boolean) {
+		if (!(currentWord.wordId in this.playerStatistics.days)) return null;
+		const currentDay = this.playerStatistics.days[currentWord.wordId];
 
-		if (await this.wonPreviousDay()) {
-			this.playerStatistics.currentStreak++;
-		} else {
-			this.playerStatistics.currentStreak = 1;
+		if (hasFinished && !currentDay.guessList.some(g => g.guessed && g.feedback.correct)) {
+			return 0;
 		}
 
-		if (this.playerStatistics.maxStreak < this.playerStatistics.currentStreak) {
-			this.playerStatistics.maxStreak = this.playerStatistics.currentStreak;
+		let daysArrayReversed = Object.entries(this.playerStatistics.days).sort(([_a, a], [_b, b]) => moment(a.word.date).diff(moment(b.word.date))).reverse();
+
+		if (!hasFinished) {
+			daysArrayReversed = daysArrayReversed.slice(1);
 		}
+
+		const firstLoseDayIndex = daysArrayReversed.findIndex(([_, stats]) => {
+			return stats.guessList.every(g => !(g.guessed && g.feedback.correct));
+		});
+
+		if (firstLoseDayIndex === -1) return daysArrayReversed.length;
+
+		return firstLoseDayIndex;
+	}
+
+	private calculateMaxStreak() {
+		const daysArray = Object.entries(this.playerStatistics.days).sort(([_a, a], [_b, b]) => moment(a.word.date).diff(moment(b.word.date)));
+		const winLoseArray = daysArray.map(([_, stats]) => stats.guessList.some(g => g.guessed && g.feedback.correct));
+		return findMaxStreak(winLoseArray);
+	}
+
+	updateStreaks(currentWord: PlayerWord, hasFinished: boolean) {
+		this.playerStatistics.currentStreak = this.calculateStreak(currentWord, hasFinished);
+		this.playerStatistics.maxStreak = this.calculateMaxStreak();
 	}
 
 	addLoss() {

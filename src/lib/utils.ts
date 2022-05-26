@@ -104,3 +104,20 @@ export function ordinal(n: number) {
 	var v = n % 100;
 	return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
+
+// a should be an array of numbers, where true is a win and false is a lose
+export function findMaxStreak(a: Array<boolean>) {
+	let maxStreak = 0;
+	let currentStreak = 0;
+	for (let i = 0; i < a.length; i++) {
+		if (a[i]) {
+			currentStreak++;
+		} else {
+			currentStreak = 0;
+		}
+		if (currentStreak > maxStreak) {
+			maxStreak = currentStreak;
+		}
+	}
+	return maxStreak;
+}

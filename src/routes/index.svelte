@@ -8,7 +8,7 @@
 
 			let guesses: Guess[] = [];
 			let currentNumAttempts = 0;
-			if (browser) {
+			if (browser && word) {
 				statisticsStore.addDayIfNotPresent(word);
 				guesses = statisticsStore.getGuesses(word);
 
@@ -190,7 +190,7 @@
 			}
 
 			if (browser) {
-				await statisticsStore.addWin();
+				statisticsStore.updateStreaks(word, hasFinished);
 				statisticsStore.savePlayerStatistics();
 			}
 
@@ -409,6 +409,7 @@
 			showStatisticsModal(true);
 			animateFinishedRefresh = true;
 		}
+		statisticsStore.updateStreaks(word, hasFinished);
 	});
 </script>
 

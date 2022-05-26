@@ -11,6 +11,7 @@ const timezone = 'America/Los_Angeles';
 export class MongoDB implements IDatabase {
 	client: Promise<MongoClient>;
 	wordCache: WordDocument[] = [];
+	wordHistoryCache: PlayerWord[] = [];
 
 	constructor(client: Promise<MongoClient>) {
 		this.client = client;
@@ -20,14 +21,29 @@ export class MongoDB implements IDatabase {
 		const connection = await this.client;
 		const db = connection.db();
 		const collection = db.collection('words');
-		const words = (await collection
+		const todayAndFutureWords = (await collection
 			.find({
 				date: { $gte: moment.tz(timezone).startOf('day').toDate() }
 			})
 			.sort({ date: 1 })
 			.toArray()) as WordDocument[];
 
-		this.wordCache = words.slice(0, wordCacheLimit);
+		this.wordCache = todayAndFutureWords.slice(0, wordCacheLimit);
+
+		const pastWords = (await collection
+			.find({
+				date: {
+					$lt: moment.utc().toDate()
+				}
+			})
+			.toArray()) as [WordDocument];
+		this.wordHistoryCache = pastWords.map((w) => {
+			return {
+				wordId: w._id.toHexString(),
+				num: w.num,
+				date: w.date
+			} as PlayerWord;
+		});
 	}
 
 	private async updateCache() {
@@ -121,25 +137,11 @@ export class MongoDB implements IDatabase {
 	}
 
 	async getWordHistory() {
-		const connection = await this.client;
-		const db = connection.db();
-		const collection = db.collection('words');
-		const words = (await collection
-			.find({
-				date: {
-					$lt: moment.utc().toDate()
-				}
-			})
-			.toArray()) as [WordDocument];
-		return words.map((w) => {
-			return {
-				wordId: w._id.toHexString(),
-				num: w.num,
-				word: w.word,
-				date: w.date,
-				desc: w.desc
-			} as Word;
-		});
+		await this.updateCache();
+		if (this.wordHistoryCache) {
+			return this.wordHistoryCache;
+		}
+		return null;
 	}
 
 	async wordExists(word: string) {

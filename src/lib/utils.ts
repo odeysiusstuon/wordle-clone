@@ -1,7 +1,8 @@
 import { writable, type Writable } from 'svelte/store';
-import { emojiMappings, maxGuesses, type Guess, type PlayerWord } from './types';
+import { emojiMappings, maxGuesses, type DayStatistics, type Guess, type PlayerStatistics, type PlayerWord } from './types';
 import type { StatisticsStore } from '$lib/stores/statistics_store';
 import { browser } from '$app/env';
+import moment from 'moment';
 
 export function keyToCharacter(key: string) {
 	return key[3].toLowerCase();
@@ -105,19 +106,64 @@ export function ordinal(n: number) {
 	return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
-// a should be an array of numbers, where true is a win and false is a lose
-export function findMaxStreak(a: Array<boolean>) {
+// `array` should be an array of numbers, where true is a win and false is a lose
+export function findMaxStreak(daysArray: [string, DayStatistics][]) {
+	const numAndWinArray = daysArray.map(([_, stats]) => {
+		return {
+			num: stats.word.num,
+			won: stats.guessList.some(g => g.guessed && g.feedback.correct)
+		};
+	});
+
+	if (numAndWinArray.length === 0) return 0;
+	if (numAndWinArray.length === 1) {
+		if (numAndWinArray[0].won) return 1;
+		return 0;
+	}
+
+	console.log(numAndWinArray);
+
 	let maxStreak = 0;
 	let currentStreak = 0;
-	for (let i = 0; i < a.length; i++) {
-		if (a[i]) {
+	let currentNum = numAndWinArray[0].num;
+	for (let i = 0; i < numAndWinArray.length; i++) {
+		if (numAndWinArray[i].won && currentNum === numAndWinArray[i].num) {
 			currentStreak++;
 		} else {
 			currentStreak = 0;
+			currentNum = numAndWinArray[i].num;
 		}
 		if (currentStreak > maxStreak) {
 			maxStreak = currentStreak;
 		}
+		currentNum++;
 	}
+
 	return maxStreak;
+	// let maxStreak = 0;
+	// let currentStreak = 0;
+	// for (let i = 0; i < array.length; i++) {
+	// 	if (array[i]) {
+	// 		currentStreak++;
+	// 	} else {
+	// 		currentStreak = 0;
+	// 	}
+	// 	if (currentStreak > maxStreak) {
+	// 		maxStreak = currentStreak;
+	// 	}
+	// }
+	// return maxStreak;
+}
+
+export function findFirstDiscontinuousDay(daysArrayReversed: [string, DayStatistics][]) {
+	if (daysArrayReversed.length > 0) {
+		let currentDayNum = daysArrayReversed[0][1].word.num;
+		for (let i = 0; i < daysArrayReversed.length; i++) {
+			const stats = daysArrayReversed[i][1];
+			if (stats.word.num !== currentDayNum) return i;
+			currentDayNum--;
+		};
+		return -1;
+	}
+	return -1;
 }

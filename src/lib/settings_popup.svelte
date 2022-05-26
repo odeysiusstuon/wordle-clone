@@ -11,14 +11,19 @@
 		winSound
 	} = settingsStore;
 	import { nextWord } from './stores/cache_store';
+	import { browser } from '$app/env';
+	import { statisticsStore } from './stores/statistics_store';
 
 	export let currentWord: PlayerWord;
 	export let guesses: Guess[];
 
-	function printDebug() {
+	async function executeDebug() {
+		if (!browser) return;
 		console.log(`CURRENT WORD: ${JSON.stringify(currentWord, null, 4)}`);
 		console.log(`GUESSES: ${JSON.stringify(guesses, null, 4)}`);
 		console.log(`NEXT WORD: ${JSON.stringify($nextWord, null, 4)}`);
+		console.log('Statistics now copied to clipboard');
+		await navigator.clipboard.writeText(JSON.stringify(statisticsStore.statistics));
 	}
 </script>
 
@@ -110,7 +115,7 @@
 	</div>
 </div>
 
-<button class="debug-button" on:click={printDebug}> 🤓 </button>
+<button class="debug-button" on:click={executeDebug}> 🤓 </button>
 
 <style>
 	h1 {

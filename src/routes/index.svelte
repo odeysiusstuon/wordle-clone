@@ -189,19 +189,15 @@
 				}
 			}
 
-			if (browser) {
-				statisticsStore.updateStreaks(word, hasFinished);
-				statisticsStore.savePlayerStatistics();
-			}
-
 			if ($winConfetti) {
 				playWinAnimation = true;
 				setTimeout(() => (playWinAnimation = false), 5 * 1000);
 			}
-		} else {
-			if (browser) {
-				statisticsStore.addLoss();
-			}
+		}
+
+		if (browser) {
+			statisticsStore.updateStreaks(word, hasFinished);
+			statisticsStore.savePlayerStatistics();
 		}
 
 		if ($autoCopyResults) {

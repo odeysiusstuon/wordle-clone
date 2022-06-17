@@ -510,7 +510,7 @@
 		/* flex-direction: column; */
 		flex-flow: column;
 		height: 100vh;
-		/* justify-content: center; */
+		justify-content: center;
 		align-items: center;
 	}
 
@@ -560,15 +560,10 @@
 		flex: 2;
 		align-items: center;
 		flex-direction: column;
-		margin-top: auto;
+		/* margin-top: auto; */
 		/* align-self: center; */
 		/* justify-content: end; */
 		margin-bottom: 10px;
-	}
-
-	.toaster,
-	.container {
-		padding-bottom: 2vh;
 	}
 
 	.toaster {

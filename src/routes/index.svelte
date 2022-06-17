@@ -535,21 +535,18 @@
 
 	.container {
 		display: flex;
-		flex-grow: 1;
+		flex-grow: 0.8;
 		align-items: center;
 		flex-direction: column;
 		justify-content: center;
 		text-align: center;
 		user-select: none;
-		margin-top: 10px;
-		margin-bottom: 10px;
 	}
 
 	.keyboard {
 		display: flex;
 		align-items: center;
 		flex-direction: column;
-		height: 200px;
 	}
 
 	.toaster {

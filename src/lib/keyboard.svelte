@@ -111,6 +111,7 @@
 		display: block;
 		margin: 0 8px;
 		width: 600px;
+		height: 200px;
 	}
 
 	@media all and (max-width: 600px) {

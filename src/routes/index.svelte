@@ -546,7 +546,7 @@
 	.container {
 		grid-area: container;
 		display: flex;
-		flex: 3 1 500px;
+		flex: 2 1 500px;
 		align-items: center;
 		flex-direction: column;
 		justify-content: center;

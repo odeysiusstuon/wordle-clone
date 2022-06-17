@@ -503,6 +503,7 @@
 		flex-flow: column;
 		height: 100vh;
 		align-items: center;
+		margin: 0 auto;
 	}
 
 	.main::after {
@@ -548,7 +549,7 @@
 		display: flex;
 		align-items: center;
 		flex-direction: column;
-		margin-bottom: 10px;
+		height: 200px;
 	}
 
 	.toaster {

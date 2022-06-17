@@ -100,9 +100,28 @@
 		align-items: center;
 		font-family: var(--tile-font-family);
 		font-size: 2rem;
+		flex: 1;
 		text-transform: uppercase;
 		user-select: none;
+		width: calc(60px - max(0px, 0.15 * (750px - 100vh), 0.25 * (380px - 100vw)));
+		height: calc(60px - max(0px, 0.15 * (750px - 100vh), 0.25 * (380px - 100vw)));
 	}
+
+	/* @media all and (max-height: 750px) {
+		.tile {
+			width: min(calc(60px - 0.15 * (750px - 100vh)), calc(60px - 0.15 * (350 - 100vw)));
+			height: min(calc(60px - 0.15 * (750px - 100vh)), calc(60px - 0.15 * (350 - 100vw)));
+			font-size: min(calc(2rem - 0.1 * (750px - 100vh)), calc(2rem - 0.1 * (350 - 100vw)));
+		}
+	}
+
+	@media all and (max-width: 350px) {
+		.tile {
+			width: min(calc(60px - 0.15 * (750px - 100vh)), calc(60px - 0.15 * (350 - 100vw)));
+			height: min(calc(60px - 0.15 * (750px - 100vh)), calc(60px - 0.15 * (350 - 100vw)));
+			font-size: min(calc(2rem - 0.1 * (750px - 100vh)), calc(2rem - 0.1 * (350 - 100vw)));
+		}
+	} */
 
 	.tile.deactivated {
 		color: #777;

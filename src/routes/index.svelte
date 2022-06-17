@@ -102,6 +102,7 @@
 	import { browser } from '$app/env';
 	import { variables } from '$lib/env';
 	import { SmallCache } from '$lib/small_cache';
+	import { min } from 'lodash';
 
 	const helpModal = writable(null);
 	const showHelpModal = () => helpModal.set(bind(HelpPopup, {}));
@@ -486,7 +487,6 @@
 					shakingAllowed
 					--num-rows={maxGuesses}
 					--num-columns={letterLength}
-					--tile-height="60px"
 				/>
 			</div>
 		</div>
@@ -499,16 +499,13 @@
 
 <style>
 	.main {
-		display: grid;
-		grid-template-rows: 20px 1fr 200px;
-		grid-template-columns: 1fr;
-		grid-template-areas:
-			'header'
-			'container'
-			'keyboard';
-		height: 100vh;
-		justify-content: center;
+		position: fixed;
+		display: flex;
+		flex-flow: column;
+		height: 100%;
+		width: 100%;
 		align-items: center;
+		margin: 0 auto;
 	}
 
 	.main::after {
@@ -529,8 +526,8 @@
 	}
 
 	.header {
-		grid-area: header;
 		display: flex;
+		width: 100%;
 		align-items: center;
 		flex-direction: row;
 		justify-content: space-between;
@@ -539,8 +536,8 @@
 	}
 
 	.container {
-		grid-area: container;
 		display: flex;
+		flex-grow: 1;
 		align-items: center;
 		flex-direction: column;
 		justify-content: center;
@@ -549,17 +546,9 @@
 	}
 
 	.keyboard {
-		grid-area: keyboard;
 		display: flex;
 		align-items: center;
 		flex-direction: column;
-		justify-content: end;
-	}
-
-	.toaster,
-	.tileset,
-	.keyboard {
-		padding-bottom: 50px;
 	}
 
 	.toaster {

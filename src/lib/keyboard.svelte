@@ -111,10 +111,18 @@
 		display: block;
 		margin: 0 8px;
 		width: 600px;
+		height: 200px;
+	}
+
+	@media all and (max-width: 600px) {
+		.keyboard {
+			width: 90vw;
+		}
 	}
 
 	.row {
 		display: flex;
+		justify-content: center;
 		margin: 0 auto 8px;
 	}
 </style>

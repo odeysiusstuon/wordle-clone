@@ -81,8 +81,14 @@
 <style>
 	.tileset {
 		display: grid;
-		grid-template-rows: repeat(var(--num-rows), var(--tile-height));
 		grid-auto-flow: row;
 		gap: 0.5rem 0.5rem;
+		/* display: flex;
+		flex-direction: column;
+		gap: 0.5rem 0.5rem; */
+	}
+
+	.tileset {
+		grid-template-rows: repeat(var(--num-rows), 1fr);
 	}
 </style>

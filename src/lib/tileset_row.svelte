@@ -96,12 +96,13 @@
 <style>
 	.row {
 		position: relative;
-		/* display: grid;
-		grid-template-columns: repeat(var(--num-columns), var(--tile-width));
-		grid-auto-flow: column; */
-		display: flex;
+		display: grid;
+		grid-template-columns: repeat(var(--num-columns), 1fr);
+		grid-auto-flow: column;
+		gap: 0.5rem 0.5rem;
+		/* display: flex;
 		flex-flow: row;
 		flex: 1;
-		gap: 0.5rem 0.5rem;
+		gap: 0.5rem 0.5rem; */
 	}
 </style>

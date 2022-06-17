@@ -110,11 +110,18 @@
 	.keyboard {
 		display: block;
 		margin: 0 8px;
-		width: min(80vw, 600px);
+		width: 600px;
+	}
+
+	@media all and (max-width: 600px) {
+		.keyboard {
+			width: 90vw;
+		}
 	}
 
 	.row {
 		display: flex;
+		justify-content: center;
 		margin: 0 auto 8px;
 	}
 </style>

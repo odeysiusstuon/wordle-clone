@@ -545,8 +545,7 @@
 	.container {
 		grid-area: container;
 		display: flex;
-		flex: 0 1 500px;
-		height: 50%;
+		flex: 1 1 500px;
 		align-items: center;
 		flex-direction: column;
 		justify-content: center;
@@ -566,8 +565,8 @@
 	}
 
 	.toaster,
-	.tileset {
-		padding-bottom: 50px;
+	.container {
+		padding-bottom: 2vh;
 	}
 
 	.toaster {

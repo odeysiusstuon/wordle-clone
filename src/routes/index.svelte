@@ -536,6 +536,7 @@
 		display: flex;
 		width: 100%;
 		align-items: center;
+		flex: 1;
 		flex-direction: row;
 		justify-content: space-between;
 		text-align: center;
@@ -545,7 +546,7 @@
 	.container {
 		grid-area: container;
 		display: flex;
-		flex: 1 1 500px;
+		flex: 3 1 500px;
 		align-items: center;
 		flex-direction: column;
 		justify-content: center;
@@ -556,11 +557,12 @@
 	.keyboard {
 		grid-area: keyboard;
 		display: flex;
-		flex: 3;
+		flex: 2;
 		align-items: center;
 		flex-direction: column;
 		margin-top: auto;
-		justify-content: end;
+		/* align-self: center; */
+		/* justify-content: end; */
 		margin-bottom: 10px;
 	}
 

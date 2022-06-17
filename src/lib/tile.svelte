@@ -100,8 +100,19 @@
 		align-items: center;
 		font-family: var(--tile-font-family);
 		font-size: 2rem;
+		flex: 1;
 		text-transform: uppercase;
 		user-select: none;
+		width: 60px;
+		height: 60px;
+	}
+
+	@media all and (max-height: 750px) {
+		.tile {
+			width: calc(60px - 0.15 * (750px - 100vh));
+			height: calc(60px - 0.15 * (750px - 100vh));
+			font-size: calc(2rem - 0.1 * (750px - 100vh));
+		}
 	}
 
 	.tile.deactivated {

@@ -102,6 +102,7 @@
 	import { browser } from '$app/env';
 	import { variables } from '$lib/env';
 	import { SmallCache } from '$lib/small_cache';
+	import { min } from 'lodash';
 
 	const helpModal = writable(null);
 	const showHelpModal = () => helpModal.set(bind(HelpPopup, {}));
@@ -486,7 +487,6 @@
 					shakingAllowed
 					--num-rows={maxGuesses}
 					--num-columns={letterLength}
-					--tile-height="60px"
 				/>
 			</div>
 		</div>
@@ -499,15 +499,18 @@
 
 <style>
 	.main {
-		display: grid;
-		grid-template-rows: 20px 1fr 200px;
+		/* display: grid;
+		grid-template-rows: 20px 200px 200px;
 		grid-template-columns: 1fr;
 		grid-template-areas:
 			'header'
 			'container'
-			'keyboard';
+			'keyboard'; */
+		display: flex;
+		/* flex-direction: column; */
+		flex-flow: column;
 		height: 100vh;
-		justify-content: center;
+		/* justify-content: center; */
 		align-items: center;
 	}
 
@@ -531,6 +534,7 @@
 	.header {
 		grid-area: header;
 		display: flex;
+		width: 100%;
 		align-items: center;
 		flex-direction: row;
 		justify-content: space-between;
@@ -541,6 +545,8 @@
 	.container {
 		grid-area: container;
 		display: flex;
+		flex: 0 1 500px;
+		height: 50%;
 		align-items: center;
 		flex-direction: column;
 		justify-content: center;
@@ -551,14 +557,15 @@
 	.keyboard {
 		grid-area: keyboard;
 		display: flex;
+		flex: 3;
 		align-items: center;
 		flex-direction: column;
+		margin-top: auto;
 		justify-content: end;
 	}
 
 	.toaster,
-	.tileset,
-	.keyboard {
+	.tileset {
 		padding-bottom: 50px;
 	}
 

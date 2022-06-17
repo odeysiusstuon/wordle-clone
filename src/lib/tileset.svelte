@@ -80,9 +80,21 @@
 
 <style>
 	.tileset {
-		display: grid;
-		grid-template-rows: repeat(var(--num-rows), var(--tile-height));
+		/* display: grid;
 		grid-auto-flow: row;
+		gap: 0.5rem 0.5rem; */
+		display: flex;
+		flex-direction: column;
 		gap: 0.5rem 0.5rem;
 	}
+
+	/* .tileset {
+		grid-template-rows: repeat(var(--num-rows), min(60px, 8vh));
+	}
+
+	@media all and (min-height: 750px) {
+		.tileset {
+			grid-template-rows: repeat(var(--num-rows), min(60px, 8vh));
+		}
+	} */
 </style>

@@ -499,18 +499,9 @@
 
 <style>
 	.main {
-		/* display: grid;
-		grid-template-rows: 20px 200px 200px;
-		grid-template-columns: 1fr;
-		grid-template-areas:
-			'header'
-			'container'
-			'keyboard'; */
 		display: flex;
-		/* flex-direction: column; */
 		flex-flow: column;
 		height: 100vh;
-		justify-content: center;
 		align-items: center;
 	}
 
@@ -532,11 +523,9 @@
 	}
 
 	.header {
-		grid-area: header;
 		display: flex;
 		width: 100%;
 		align-items: center;
-		flex: 1;
 		flex-direction: row;
 		justify-content: space-between;
 		text-align: center;
@@ -544,25 +533,21 @@
 	}
 
 	.container {
-		grid-area: container;
 		display: flex;
-		flex: 2 1 500px;
+		flex-grow: 1;
 		align-items: center;
 		flex-direction: column;
 		justify-content: center;
 		text-align: center;
 		user-select: none;
+		margin-top: 10px;
+		margin-bottom: 10px;
 	}
 
 	.keyboard {
-		grid-area: keyboard;
 		display: flex;
-		flex: 2;
 		align-items: center;
 		flex-direction: column;
-		/* margin-top: auto; */
-		/* align-self: center; */
-		/* justify-content: end; */
 		margin-bottom: 10px;
 	}
 

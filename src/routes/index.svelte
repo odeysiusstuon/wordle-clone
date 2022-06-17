@@ -491,9 +491,7 @@
 			</div>
 		</div>
 
-		<div class="keyboard">
-			<Keyboard on:keypress={onKeyboardPress} {guesses} disabled={!canGuess} {keyboardMap} />
-		</div>
+		<Keyboard on:keypress={onKeyboardPress} {guesses} disabled={!canGuess} {keyboardMap} />
 	{/if}
 </div>
 
@@ -545,12 +543,6 @@
 		user-select: none;
 	}
 
-	.keyboard {
-		display: flex;
-		align-items: center;
-		flex-direction: column;
-	}
-
 	.toaster {
 		z-index: 1001;
 	}
@@ -594,5 +586,23 @@
 	h1 {
 		font-size: 42px;
 		margin: 0px;
+	}
+
+	@media (max-width: 360px) {
+		h1 {
+			font-size: 22px;
+			letter-spacing: 0.1rem;
+		}
+
+		.header-buttons-left,
+		.header-buttons-right,
+		.heading {
+			margin: 5px;
+			margin-top: 10px;
+		}
+
+		.header-buttons-right {
+			margin-right: 10px;
+		}
 	}
 </style>

@@ -562,6 +562,7 @@
 		flex-direction: column;
 		margin-top: auto;
 		justify-content: end;
+		margin-bottom: 10px;
 	}
 
 	.toaster,

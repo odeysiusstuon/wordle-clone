@@ -110,7 +110,7 @@
 	.keyboard {
 		display: block;
 		margin: 0 8px;
-		width: 600px;
+		width: min(80vw, 600px);
 	}
 
 	.row {

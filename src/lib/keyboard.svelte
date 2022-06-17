@@ -88,8 +88,7 @@
 						dataKey={character['data-key']}
 						feedback={LetterFeedback.None}
 						on:click={onKeyPress}
-						--font-size="12px"
-						--flex={character.flex}><span class="material-symbols-outlined"> backspace </span></Key
+						flex={character.flex}><span class="material-symbols-outlined"> backspace </span></Key
 					>
 				{:else}
 					<Key
@@ -97,8 +96,9 @@
 						dataKey={character['data-key']}
 						feedback={getKeyFeedback(guesses, character.display)}
 						on:click={onKeyPress}
-						--font-size={character.display.length > 1 ? '12px' : undefined}
-						--flex={character.flex}>{character.display}</Key
+						flex={character.flex}
+					>
+						{character.display}</Key
 					>
 				{/if}
 			{/each}
@@ -110,19 +110,16 @@
 	.keyboard {
 		display: block;
 		margin: 0 8px;
-		width: 600px;
 		height: 200px;
-	}
-
-	@media all and (max-width: 600px) {
-		.keyboard {
-			width: 90vw;
-		}
+		user-select: none;
+		width: calc(500px - max(0px, (520px - 100vw)));
 	}
 
 	.row {
 		display: flex;
 		justify-content: center;
+		width: 100%;
 		margin: 0 auto 8px;
+		touch-action: manipulation;
 	}
 </style>

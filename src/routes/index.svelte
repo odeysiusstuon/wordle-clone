@@ -499,9 +499,10 @@
 
 <style>
 	.main {
+		position: fixed;
 		display: flex;
 		flex-flow: column;
-		height: 100vh;
+		height: 100%;
 		align-items: center;
 		margin: 0 auto;
 	}
@@ -535,7 +536,7 @@
 
 	.container {
 		display: flex;
-		flex-grow: 0.8;
+		flex-grow: 1;
 		align-items: center;
 		flex-direction: column;
 		justify-content: center;

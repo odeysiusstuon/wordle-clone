@@ -60,9 +60,10 @@
 	currentNumAttempts={0}
 	currentGuessWord=""
 	alwaysShowTbdTiles
+	width={`${5 * 60 + 8 * 4}px`}
+	gap="8px"
 	--num-rows={1}
 	--num-columns={letterLength}
-	--tile-height="60px"
 />
 
 <p>
@@ -76,9 +77,10 @@
 	currentNumAttempts={0}
 	currentGuessWord=""
 	alwaysShowTbdTiles
+	width={`${5 * 60 + 8 * 4}px`}
+	gap="8px"
 	--num-rows={1}
 	--num-columns={letterLength}
-	--tile-height="60px"
 />
 
 <p>The letters <strong>D</strong> and <strong>M</strong> are not in the word in any spot.</p>

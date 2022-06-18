@@ -6,7 +6,8 @@
 
 	export let numColumns = letterLength;
 
-	export let tileWidth: string = '60px';
+	export let width: string = '100%';
+	export let gap: string = '8px';
 
 	export let animationDuration: number = 0;
 
@@ -39,7 +40,7 @@
 	});
 </script>
 
-<div class="tileset">
+<div class="tileset" style={`--gap: ${gap};`}>
 	{#each guesses as guess, rowIndex}
 		{#if rowIndex === currentNumAttempts && shakingAllowed}
 			{#key shakeKey}
@@ -57,7 +58,8 @@
 					shouldShake
 					alwaysShowTbdTiles
 					--num-columns={numColumns}
-					--tile-width={tileWidth}
+					--width={width}
+					--gap={gap}
 				/>
 			{/key}
 		{:else}
@@ -72,7 +74,8 @@
 				{animateFinishedRefresh}
 				alwaysShowTbdTiles
 				--num-columns={numColumns}
-				--tile-width={tileWidth}
+				--width={width}
+				--gap={gap}
 			/>
 		{/if}
 	{/each}
@@ -82,7 +85,7 @@
 	.tileset {
 		display: grid;
 		grid-auto-flow: row;
-		gap: 0.5rem 0.5rem;
+		gap: var(--gap);
 		/* display: flex;
 		flex-direction: column;
 		gap: 0.5rem 0.5rem; */

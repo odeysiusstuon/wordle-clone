@@ -99,7 +99,8 @@
 		display: grid;
 		grid-template-columns: repeat(var(--num-columns), 1fr);
 		grid-auto-flow: column;
-		gap: 0.5rem 0.5rem;
+		gap: var(--gap);
+		width: var(--width);
 		/* display: flex;
 		flex-flow: row;
 		flex: 1;

@@ -35,9 +35,9 @@ export function copyGuessesToClipboard(
 
 	let resultsString = '';
 	if (guesses.some((g) => g.guessed && g.feedback.correct)) {
-		resultsString += `BARdle ${currentWord.num} ${guessesEmojis.length}/${maxGuesses}`;
+		resultsString += `Wordle ${currentWord.num} ${guessesEmojis.length}/${maxGuesses}`;
 	} else {
-		resultsString += `BARdle ${currentWord.num} X/${maxGuesses}`;
+		resultsString += `Wordle ${currentWord.num} X/${maxGuesses}`;
 	}
 	resultsString += '\n\n';
 	resultsString += guessesEmojis.map((r) => r.join('')).join('\n');

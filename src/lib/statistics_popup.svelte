@@ -102,7 +102,7 @@
 					class="next-word-time-container"
 					style={`--margin-right=${showShareButton ? '20px' : '0'};`}
 				>
-					<h2>Next BARdle</h2>
+					<h2>Next Wordle</h2>
 					<h1 class="next-word-time">
 						{#await nextWordPromise}
 							<Circle2 colorInner="#8080ff" colorOuter="transparent" colorCenter="#e1221a" />

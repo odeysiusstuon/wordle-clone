@@ -5,16 +5,16 @@
 	const firstGuesses: Guess[] = [
 		{
 			guessed: true,
-			word: 'videm',
+			word: 'weary',
 			attemptNum: 1,
 			feedback: {
 				correct: false,
 				hint: {
 					letters: [
 						LetterFeedback.Correct,
-						LetterFeedback.Correct,
 						LetterFeedback.None,
-						LetterFeedback.Present,
+						LetterFeedback.None,
+						LetterFeedback.None,
 						LetterFeedback.None
 					]
 				}
@@ -25,7 +25,27 @@
 	const secondGuesses: Guess[] = [
 		{
 			guessed: true,
-			word: 'videm',
+			word: 'pills',
+			attemptNum: 1,
+			feedback: {
+				correct: false,
+				hint: {
+					letters: [
+						LetterFeedback.None,
+						LetterFeedback.Present,
+						LetterFeedback.None,
+						LetterFeedback.None,
+						LetterFeedback.None
+					]
+				}
+			}
+		}
+	];
+
+	const thirdGuesses: Guess[] = [
+		{
+			guessed: true,
+			word: 'vague',
 			attemptNum: 1,
 			feedback: {
 				correct: false,
@@ -33,9 +53,9 @@
 					letters: [
 						LetterFeedback.None,
 						LetterFeedback.None,
-						LetterFeedback.Incorrect,
 						LetterFeedback.None,
-						LetterFeedback.Incorrect
+						LetterFeedback.Incorrect,
+						LetterFeedback.None
 					]
 				}
 			}
@@ -43,7 +63,7 @@
 	];
 </script>
 
-<p>Guess the BARDLE in six tries.</p>
+<p>Guess the <strong>WORDLE</strong> in six tries.</p>
 
 <p>Each guess must be a valid five-letter word. Hit the enter button to submit.</p>
 
@@ -67,9 +87,7 @@
 />
 
 <p>
-	The letters <strong>V</strong> and <strong>I</strong> are in the word and in the correct spot.
-	<br />
-	The letter <strong>E</strong> is in the word but in the wrong spot.
+	The letter <strong>W</strong> is in the word and in the correct spot.
 </p>
 
 <Tileset
@@ -83,15 +101,25 @@
 	--num-columns={letterLength}
 />
 
-<p>The letters <strong>D</strong> and <strong>M</strong> are not in the word in any spot.</p>
+<p>The letter <strong>I</strong> is in the word but in the wrong spot.</p>
 
-(Note: If you use a different tile color theme from the default WORDLE one, this is a helpful guide
-for understanding what tile colors represent what).
+<Tileset
+	guesses={thirdGuesses}
+	currentNumAttempts={0}
+	currentGuessWord=""
+	alwaysShowTbdTiles
+	width={`${5 * 60 + 8 * 4}px`}
+	gap="8px"
+	--num-rows={1}
+	--num-columns={letterLength}
+/>
+
+<p>The letter <strong>U</strong> is not in the word in any spot.</p>
 
 <hr />
 
 <p>
 	<strong
-		>A new BARDLE will be available each day! (Hopefully. Send suggestions to videm#3598).</strong
+		>A new WORDLE will be available each day! (Contact: odeysiuss@gmail.com)</strong
 	>
 </p>

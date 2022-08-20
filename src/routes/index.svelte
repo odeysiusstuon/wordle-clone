@@ -415,10 +415,10 @@
 		rel="stylesheet"
 		href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
 	/>
-	<title>BARdle</title>
-	<meta content="BARdle" property="og:title" />
-	<meta content="Wordle but The BAR" property="og:description" />
-	<meta content="https://bardle.thebar.world" property="og:url" />
+	<title>Wordle Clone</title>
+	<meta content="Wordle Clone" property="og:title" />
+	<meta content="Wordle Clone" property="og:description" />
+	<meta content="https://wordle.tuon.dev" property="og:url" />
 	<meta content="/bardle_logo.png" property="og:image" />
 	<meta content="#4d4dff" data-react-helmet="true" name="theme-color" />
 </svelte:head>
@@ -442,7 +442,7 @@
 		</div>
 
 		<div class="heading">
-			<h1>BARdle</h1>
+			<h1>Wordle</h1>
 		</div>
 
 		<div class="header-buttons-right">
@@ -465,7 +465,6 @@
 			<div class="tileset">
 				<h1>Could not load today's word</h1>
 				<h2>Try refreshing</h2>
-				<img src="/the-bar-logo-v2-medium.png" alt="The BAR Logo" draggable="false" />
 			</div>
 		</div>
 	{:else}

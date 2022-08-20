@@ -63,7 +63,7 @@
 		>
 			<span class="material-symbols-outlined knob" class:selected={$barColorTiles}>circle</span>
 		</div>
-		<label for="bar-color-tiles-input">Use BAR colors</label>
+		<label for="bar-color-tiles-input">Use alternate colors</label>
 	</div>
 
 	<div class="input-div">

@@ -120,6 +120,6 @@
 
 <p>
 	<strong
-		>A new WORDLE will be available each day! (Contact: odeysiuss@gmail.com)</strong
+		>A new WORDLE will be available each day! (Contact: <a href="mailto:odeysiuss@gmail.com">odeysiuss@gmail.com)</a></strong
 	>
 </p>

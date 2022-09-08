@@ -1,8 +1,8 @@
 <img align="left" src="https://github.com/therealvidem/bardle/blob/develop/static/favicon.png" width="120px">
 
-# BARdle
+# Wordle Clone
 
-Powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte). Uses MongoDB as the database.
+Powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte). Website uses MongoDB as the database. Note: The original repository is https://github.com/therealvidem/bardle on my personal account, but the words in it are revolved around a niche topic. This version at https://wordle.tuon.dev/, which uses this repository, uses this [word list](https://github.com/tabatkins/wordle-list).
 
 ## Developing
 
